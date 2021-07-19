@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'database.dart';
+
 class CommentCard extends StatelessWidget {
+  final DocumentSnapshot parent;
+  final DocumentSnapshot doc;
   final bool last;
-  CommentCard({this.last = false});
+  CommentCard(this.parent, this.doc, {this.last = false});
   Widget build(BuildContext context) => Card(
         elevation: 10,
         child: Container(
@@ -16,27 +21,43 @@ class CommentCard extends StatelessWidget {
               InkWell(
                   highlightColor: Colors.transparent,
                   onTap: () {},
-                  child: Text('Martha Jhonson')),
+                  child: Text(doc['Author'])),
               VerticalDivider(),
-              Text('Today - 06:12AM')
+              Text(Database.parseDatetime(doc['date'].toDate()))
             ],
           ),
           Divider(),
           Container(
             padding: EdgeInsets.all(8),
+            alignment: Alignment.centerLeft,
             child: Text(
-              'How did you come up with such a dramatic concept, dear?',
+              doc['content'],
+              textAlign: TextAlign.left,
             ),
           ),
+          Divider(),
           (last)
               ? Row(
                   children: [
                     VerticalDivider(),
                     InkWell(
                         highlightColor: Colors.transparent,
-                        onTap: () {},
+                        onTap: () {
+                          FirebaseFirestore.instance
+                              .runTransaction((transaction) async {
+                            DocumentSnapshot freshSnapshot =
+                                await transaction.get(FirebaseFirestore.instance
+                                    .collection('Thoughts')
+                                    .doc(parent.id)
+                                    .collection('Comments')
+                                    .doc(doc.id));
+                            transaction.update(freshSnapshot.reference,
+                                {'likes': freshSnapshot['likes'] + 1});
+                          });
+                        },
                         child: Icon(Icons.thumb_up)),
-                    Text('10'),
+                    VerticalDivider(),
+                    Text('${doc['likes']}'),
                     VerticalDivider(),
                   ],
                 )
@@ -46,16 +67,24 @@ class CommentCard extends StatelessWidget {
                     children: [
                       InkWell(
                           highlightColor: Colors.transparent,
-                          onTap: () {},
+                          onTap: () {
+                            Database.updateDocument(
+                                doc,
+                                (freshSnapshot) => {
+                                      {'likes': freshSnapshot['likes'] + 1}
+                                    });
+                          },
                           child: Icon(Icons.thumb_up)),
-                      Text('10'),
+                      Text('${doc['likes']}'),
                       VerticalDivider(),
                       Icon(Icons.comment),
-                      Text('10'),
+                      Text('10'), // stream builder needed
                     ],
                   ),
                   children: [
                     CommentCard(
+                      doc,
+                      null,
                       last: true,
                     )
                   ],

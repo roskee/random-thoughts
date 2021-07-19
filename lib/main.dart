@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
@@ -16,10 +17,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Database _database;
+  TextEditingController addThoughtController;
   GlobalKey<ScaffoldState> _scaffoldKey;
   void initState() {
     super.initState();
     _scaffoldKey = GlobalKey<ScaffoldState>();
+    addThoughtController = TextEditingController();
     Database.getInstance().then((value) => setState(() {
           _database = value;
         }));
@@ -47,6 +50,7 @@ class _HomeState extends State<Home> {
                                   alignment: Alignment.bottomRight,
                                   children: [
                                     TextField(
+                                      controller: addThoughtController,
                                       decoration: InputDecoration(
                                         hintText: 'What are you thinking?',
                                       ),
@@ -57,7 +61,25 @@ class _HomeState extends State<Home> {
                                         icon: Icon(
                                           Icons.send,
                                         ),
-                                        onPressed: () {})
+                                        onPressed: () {
+                                          FirebaseFirestore.instance
+                                              .runTransaction(
+                                                  (transaction) async {
+                                            transaction.set(
+                                                FirebaseFirestore.instance
+                                                    .collection('Thoughts')
+                                                    .doc(),
+                                                {
+                                                  'Author': 'roskee',
+                                                  'content':
+                                                      addThoughtController
+                                                          .value.text,
+                                                  'date': Timestamp.now(),
+                                                  'likes': 0
+                                                });
+                                            Navigator.of(context).pop();
+                                          });
+                                        })
                                   ])),
                         ));
               },

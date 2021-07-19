@@ -18,102 +18,6 @@ class _ThoughtViewState extends State<ThoughtView> {
     //FirebaseFirestore.instance.collection('Thoughts').doc(widget.doc.id).collection('Comments').get().then((value) => docs = value);
   }
 
-  String parseDatetime(DateTime dateTime) {
-    DateTime now = DateTime.now();
-    String time = '';
-    if (now.year == dateTime.year) {
-      if (now.month == dateTime.month) {
-        if (now.day == dateTime.day)
-          time = 'Today - ';
-        else if (now.day == dateTime.day + 1)
-          time = 'Yesterday - ';
-        else if (dateTime.day > now.day - 7)
-          time = '${_parseDay(dateTime.weekday)} - ';
-        else
-          time = '${dateTime.day}-${_parseMonth(dateTime.month)} - ';
-      } else
-        time = '${dateTime.day}-${_parseMonth(dateTime.month)} - ';
-    } else
-      time =
-          '${dateTime.day}-${_parseMonth(dateTime.month)}-${dateTime.year} - ';
-    String min =
-        (dateTime.minute < 10) ? '0${dateTime.minute}' : '${dateTime.minute}';
-    time = time +
-        '${(dateTime.hour == 0) ? '12:${min}AM' : (dateTime.hour < 10) ? '0${dateTime.hour}:${min}AM' : (dateTime.hour < 12) ? '${dateTime.hour}:${min}AM' : '${dateTime.hour - 12}:${min}PM'}';
-    return time;
-  }
-
-  String _parseMonth(int month) {
-    switch (month) {
-      case 1:
-        return 'January';
-        break;
-      case 2:
-        return 'February';
-        break;
-      case 3:
-        return 'March';
-        break;
-      case 4:
-        return 'April';
-        break;
-      case 5:
-        return 'May';
-        break;
-      case 6:
-        return 'June';
-        break;
-      case 7:
-        return 'July';
-        break;
-      case 8:
-        return 'August';
-        break;
-      case 9:
-        return 'September';
-        break;
-      case 10:
-        return 'October';
-        break;
-      case 11:
-        return 'November';
-        break;
-      case 12:
-        return 'December';
-        break;
-      default:
-        return 'NaN';
-    }
-  }
-
-  String _parseDay(int day) {
-    switch (day) {
-      case 1:
-        return 'Monday';
-        break;
-      case 2:
-        return 'Tuesday';
-        break;
-      case 3:
-        return 'Wednesday';
-        break;
-      case 4:
-        return 'Thursday';
-        break;
-      case 5:
-        return 'Friday';
-        break;
-      case 6:
-        return 'Saturday';
-        break;
-      case 7:
-        return 'Sunday';
-        break;
-      default:
-        return 'Nan';
-    }
-  }
-
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
@@ -121,8 +25,7 @@ class _ThoughtViewState extends State<ThoughtView> {
           showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              barrierColor: Colors.transparent,
+              //backgroundColor: Colors.transparent,
               builder: (context) => Container(
                     color: Colors.transparent,
                     child: Stack(
@@ -141,10 +44,25 @@ class _ThoughtViewState extends State<ThoughtView> {
                               ))),
                           Expanded(
                               flex: 15,
-                              child: ListView.builder(
-                                  itemCount: 10,
-                                  itemBuilder: (context, index) =>
-                                      CommentCard())),
+                              child: StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('Thoughts')
+                                      .doc(widget.doc.id)
+                                      .collection('Comments')
+                                      .snapshots(),
+                                  builder: (context, snapshot) => (snapshot
+                                          .hasData)
+                                      ? ListView.builder(
+                                          itemCount: snapshot.data.docs.length,
+                                          itemBuilder: (context, index) =>
+                                              CommentCard(
+                                                widget.doc,
+                                                snapshot.data.docs[index],
+                                                last: true,
+                                              ))
+                                      : Center(
+                                          child: CircularProgressIndicator(),
+                                        ))),
                         ]),
                         Card(
                             elevation: 10,
@@ -188,7 +106,8 @@ class _ThoughtViewState extends State<ThoughtView> {
                     VerticalDivider(),
                     Expanded(
                       flex: 5,
-                      child: Text(parseDatetime(widget.doc['date'].toDate())),
+                      child: Text(
+                          Database.parseDatetime(widget.doc['date'].toDate())),
                     )
                   ]),
                   Divider(),
