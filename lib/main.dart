@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:random_thoughts/thoughtlist.dart';
+import 'package:random_thoughts/thoughtlistitem.dart';
+import 'package:random_thoughts/thoughtpreview.dart';
 
 import 'database.dart';
 
@@ -29,6 +30,9 @@ class _HomeState extends State<Home> {
         title: 'Random Thoughts',
         home: Scaffold(
           appBar: AppBar(title: Text('Random Thoughts')),
+          drawer: Drawer(
+            child: Text('hi'),
+          ),
           body: (_database == null)?Center(child:CircularProgressIndicator())
          :StreamBuilder(
             stream: _database.getCollection('Thoughts'),
@@ -38,20 +42,22 @@ class _HomeState extends State<Home> {
               return ListView.builder(
                 itemCount: 6,
                 itemBuilder: (context, index) {
-                  return ThoughtListItem(
-                    snapshot.data.docs[index],
-                    IconButton(
-                        icon: Icon(Icons.thumb_up),
-                        onPressed: () {
-                          // update likes count
-                         _database.updateDoc(snapshot.data.docs[index],
-                         (freshSnapshot)=> {'likes': freshSnapshot['likes'] + 1});
-                        }
-                      ),
-                      (){
-                        // details about post
-                      }
-                  );
+                  return ThoughtView(snapshot.data.docs[index]);
+                  // ThoughtListItem(
+                  //   snapshot.data.docs[index],
+                  //   IconButton(
+                  //       icon: Icon(Icons.thumb_up),
+                  //       onPressed: () {
+                  //         // update likes count
+                  //        _database.updateDoc(snapshot.data.docs[index],
+                  //        (freshSnapshot)=> {'likes': freshSnapshot['likes'] + 1});
+                  //       }
+                  //     ),
+                  //     (){
+                  //       // details about post
+                  //       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThoughtView(snapshot.data.docs[index])));
+                  //     }
+                  // );
                 },
               );
             },
