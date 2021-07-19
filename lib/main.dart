@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:random_thoughts/thoughtlistitem.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
 
 import 'database.dart';
@@ -34,8 +33,8 @@ class _HomeState extends State<Home> {
         title: 'Random Thoughts',
         home: Scaffold(
           key: _scaffoldKey,
-          appBar: AppBar(title: Text('Random Thoughts')),
           floatingActionButton: FloatingActionButton(
+            mini: true,
             child: Icon(Icons.post_add),
             onPressed: () {
               showModalBottomSheet(
@@ -71,10 +70,21 @@ class _HomeState extends State<Home> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData)
                       return Center(child: CircularProgressIndicator());
-                    return ListView.builder(
-                      itemCount: 6,
-                      itemBuilder: (context, index) {
-                        return ThoughtView(snapshot.data.docs[index]);
+                    return CustomScrollView(
+                      slivers: [
+                        SliverAppBar(
+                          expandedHeight: 150,
+                          flexibleSpace: FlexibleSpaceBar(
+                            title: Text('Random Thoughts'),
+                          ),
+                        ),
+                        SliverList(delegate: SliverChildBuilderDelegate((context,index)=>ThoughtView(snapshot.data.docs[index]),childCount: snapshot.data.docs.length,))
+                      ],
+                    );
+                    // ListView.builder(
+                    //   itemCount: 6,
+                    //   itemBuilder: (context, index) {
+                    //     return ThoughtView(snapshot.data.docs[index]);
                         // ThoughtListItem(
                         //   snapshot.data.docs[index],
                         //   IconButton(
@@ -91,9 +101,7 @@ class _HomeState extends State<Home> {
                         //     }
                         // );
                       },
-                    );
-                  },
-                ),
+                    )
         ),
       );
 }
