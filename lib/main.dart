@@ -32,76 +32,88 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
         home: Scaffold(
-          key: _scaffoldKey,
-          floatingActionButton: FloatingActionButton(
-            mini: true,
-            child: Icon(Icons.post_add),
-            onPressed: () {
-              showModalBottomSheet(
-                  context: _scaffoldKey.currentContext,
-                  builder: (context) => Card(
-                        child: Container(
-                            child: Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'What are you thinking?',
-                                ),
-                                maxLines: 6,
-                                maxLength: 150,
-                              ),
-                              IconButton(
-                                  icon: Icon(
-                                    Icons.send,
-                                  ),
-                                  onPressed: () {})
-                            ])),
-                      ));
-            },
-          ),
-          drawer: Drawer(
-            child: Text('hi'),
-          ),
-          body: (_database == null)
-              ? Center(child: CircularProgressIndicator())
-              : StreamBuilder(
-                  stream: _database.getCollection('Thoughts'),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData)
-                      return Center(child: CircularProgressIndicator());
-                    return CustomScrollView(
-                      slivers: [
-                        SliverAppBar(
-                          expandedHeight: 150,
-                          flexibleSpace: FlexibleSpaceBar(
-                            title: Text('Random Thoughts'),
+            key: _scaffoldKey,
+            floatingActionButton: FloatingActionButton(
+              mini: true,
+              child: Icon(Icons.post_add),
+              onPressed: () {
+                showModalBottomSheet(
+                    context: _scaffoldKey.currentContext,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => Card(
+                          child: Container(
+                              color: Colors.transparent,
+                              child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    TextField(
+                                      decoration: InputDecoration(
+                                        hintText: 'What are you thinking?',
+                                      ),
+                                      maxLines: 6,
+                                      maxLength: 150,
+                                    ),
+                                    IconButton(
+                                        icon: Icon(
+                                          Icons.send,
+                                        ),
+                                        onPressed: () {})
+                                  ])),
+                        ));
+              },
+            ),
+            body: (_database == null)
+                ? Center(child: CircularProgressIndicator())
+                : StreamBuilder(
+                    stream: _database.getCollection('Thoughts'),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData)
+                        return Center(child: CircularProgressIndicator());
+                      return CustomScrollView(
+                        slivers: [
+                          SliverAppBar(
+                            actions: [
+                              PopupMenuButton(
+                                  icon: Icon(Icons.face),
+                                  itemBuilder: (context) => [
+                                        PopupMenuItem(child: Text('Settings')),
+                                        PopupMenuItem(child: Text('About'))
+                                      ])
+                            ],
+                            stretch: false,
+                            expandedHeight: 150,
+                            flexibleSpace: FlexibleSpaceBar(
+                              title: Text('Random Thoughts'),
+                            ),
                           ),
-                        ),
-                        SliverList(delegate: SliverChildBuilderDelegate((context,index)=>ThoughtView(snapshot.data.docs[index]),childCount: snapshot.data.docs.length,))
-                      ],
-                    );
-                    // ListView.builder(
-                    //   itemCount: 6,
-                    //   itemBuilder: (context, index) {
-                    //     return ThoughtView(snapshot.data.docs[index]);
-                        // ThoughtListItem(
-                        //   snapshot.data.docs[index],
-                        //   IconButton(
-                        //       icon: Icon(Icons.thumb_up),
-                        //       onPressed: () {
-                        //         // update likes count
-                        //        _database.updateDoc(snapshot.data.docs[index],
-                        //        (freshSnapshot)=> {'likes': freshSnapshot['likes'] + 1});
-                        //       }
-                        //     ),
-                        //     (){
-                        //       // details about post
-                        //       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThoughtView(snapshot.data.docs[index])));
-                        //     }
-                        // );
-                      },
-                    )
-        ),
+                          SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                            (context, index) => ThoughtView(
+                                _database, snapshot.data.docs[index]),
+                            childCount: snapshot.data.docs.length,
+                          ))
+                        ],
+                      );
+                      // ListView.builder(
+                      //   itemCount: 6,
+                      //   itemBuilder: (context, index) {
+                      //     return ThoughtView(snapshot.data.docs[index]);
+                      // ThoughtListItem(
+                      //   snapshot.data.docs[index],
+                      //   IconButton(
+                      //       icon: Icon(Icons.thumb_up),
+                      //       onPressed: () {
+                      //         // update likes count
+                      //        _database.updateDoc(snapshot.data.docs[index],
+                      //        (freshSnapshot)=> {'likes': freshSnapshot['likes'] + 1});
+                      //       }
+                      //     ),
+                      //     (){
+                      //       // details about post
+                      //       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThoughtView(snapshot.data.docs[index])));
+                      //     }
+                      // );
+                    },
+                  )),
       );
 }
