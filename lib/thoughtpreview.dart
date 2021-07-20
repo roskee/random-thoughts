@@ -13,8 +13,12 @@ class ThoughtView extends StatefulWidget {
 }
 
 class _ThoughtViewState extends State<ThoughtView> {
+  TextEditingController addCommentController;
+  FocusNode addCommentFocusNode;
   void initState() {
     super.initState();
+    addCommentController = TextEditingController();
+    addCommentFocusNode = FocusNode();
     //FirebaseFirestore.instance.collection('Thoughts').doc(widget.doc.id).collection('Comments').get().then((value) => docs = value);
   }
 
@@ -28,9 +32,7 @@ class _ThoughtViewState extends State<ThoughtView> {
               //backgroundColor: Colors.transparent,
               builder: (context) => Container(
                     color: Colors.transparent,
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
+                    child: 
                         Column(children: [
                           Expanded(
                               flex: 2,
@@ -52,7 +54,8 @@ class _ThoughtViewState extends State<ThoughtView> {
                                       .snapshots(),
                                   builder: (context, snapshot) => (snapshot
                                           .hasData)
-                                      ? ListView.builder(
+                                      ? (snapshot.data.docs.length==0)?Text('No comments yet!')
+                                      :ListView.builder(
                                           itemCount: snapshot.data.docs.length,
                                           itemBuilder: (context, index) =>
                                               CommentCard(
@@ -63,18 +66,41 @@ class _ThoughtViewState extends State<ThoughtView> {
                                       : Center(
                                           child: CircularProgressIndicator(),
                                         ))),
-                        ]),
+    
+                        Stack(
+                          alignment: Alignment.bottomLeft,
+                          children:[
                         Card(
                             elevation: 10,
                             child: Container(
                                 color: Colors.transparent,
                                 child: TextField(
+                                  controller: addCommentController,
+                                  focusNode: addCommentFocusNode,
                                   decoration: InputDecoration(
-                                      hintText: 'Type your commet'),
+                                      hintText: 'Type your comment'),
                                   maxLines: 3,
                                   maxLength: 150,
                                 ))),
-                        IconButton(icon: Icon(Icons.send), onPressed: () {})
+                                IconButton(icon: Icon(Icons.send), onPressed: () {
+                          // add comment
+                          FirebaseFirestore.instance.runTransaction((transaction) async {
+                            transaction.set(FirebaseFirestore.instance.collection('Thoughts').doc(widget.doc.id).collection('Comments').doc(), {
+                              'Author': 'roskee',
+                              'date':Timestamp.now(),
+                              'content':addCommentController.value.text,
+                              'likes':0
+
+                            });
+                          }).then((value) 
+                          {
+                             addCommentController.clear();
+                          });
+                         
+                          addCommentFocusNode.unfocus();
+                        })
+                          ]
+                        )
                       ],
                     ),
                   ));

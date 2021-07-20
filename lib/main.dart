@@ -62,6 +62,7 @@ class _HomeState extends State<Home> {
                                           Icons.send,
                                         ),
                                         onPressed: () {
+                                          if(addThoughtController.value.text.isEmpty)return;
                                           FirebaseFirestore.instance
                                               .runTransaction(
                                                   (transaction) async {
