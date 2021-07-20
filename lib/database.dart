@@ -19,12 +19,12 @@ class Database {
   dynamic getFieldOf(dynamic doc, int index, String fieldName) {
     return doc.data.docs[index][fieldName];
   }
-  static updateDocument(DocumentSnapshot doc,Function updater){
-    FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
-      transaction.update(freshSnapshot.reference, updater(freshSnapshot));
-    });
-  }
+  // static updateDocument(DocumentSnapshot doc,Function updater){
+  //   FirebaseFirestore.instance.runTransaction((transaction) async {
+  //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
+  //     transaction.update(freshSnapshot.reference, updater(freshSnapshot));
+  //   });
+  // }
   Future<bool> updateDoc(dynamic doc, Function updater) async  {
     
     if(!isConnected()) return false;

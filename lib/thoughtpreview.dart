@@ -32,75 +32,81 @@ class _ThoughtViewState extends State<ThoughtView> {
               //backgroundColor: Colors.transparent,
               builder: (context) => Container(
                     color: Colors.transparent,
-                    child: 
-                        Column(children: [
-                          Expanded(
-                              flex: 2,
-                              child: Card(
-                                  child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Comments',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ))),
-                          Expanded(
-                              flex: 15,
-                              child: StreamBuilder(
-                                  stream: FirebaseFirestore.instance
-                                      .collection('Thoughts')
-                                      .doc(widget.doc.id)
-                                      .collection('Comments')
-                                      .snapshots(),
-                                  builder: (context, snapshot) => (snapshot
-                                          .hasData)
-                                      ? (snapshot.data.docs.length==0)?Text('No comments yet!')
-                                      :ListView.builder(
-                                          itemCount: snapshot.data.docs.length,
-                                          itemBuilder: (context, index) =>
-                                              CommentCard(
-                                                widget.doc,
-                                                snapshot.data.docs[index],
-                                                last: true,
-                                              ))
-                                      : Center(
-                                          child: CircularProgressIndicator(),
-                                        ))),
-    
-                        Stack(
-                          alignment: Alignment.bottomLeft,
-                          children:[
-                        Card(
-                            elevation: 10,
-                            child: Container(
-                                color: Colors.transparent,
-                                child: TextField(
-                                  controller: addCommentController,
-                                  focusNode: addCommentFocusNode,
-                                  decoration: InputDecoration(
-                                      hintText: 'Type your comment'),
-                                  maxLines: 3,
-                                  maxLength: 150,
-                                ))),
-                                IconButton(icon: Icon(Icons.send), onPressed: () {
-                          // add comment
-                          FirebaseFirestore.instance.runTransaction((transaction) async {
-                            transaction.set(FirebaseFirestore.instance.collection('Thoughts').doc(widget.doc.id).collection('Comments').doc(), {
-                              'Author': 'roskee',
-                              'date':Timestamp.now(),
-                              'content':addCommentController.value.text,
-                              'likes':0
+                    child: Column(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Card(
+                                child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Comments',
+                                textAlign: TextAlign.center,
+                              ),
+                            ))),
+                        Expanded(
+                            flex: 15,
+                            child: StreamBuilder(
+                                stream: FirebaseFirestore.instance
+                                    .collection('Thoughts')
+                                    .doc(widget.doc.id)
+                                    .collection('Comments')
+                                    .snapshots(),
+                                builder: (context, snapshot) =>
+                                    (snapshot.hasData)
+                                        ? (snapshot.data.docs.length == 0)
+                                            ? Text('No comments yet!')
+                                            : ListView.builder(
+                                                itemCount:
+                                                    snapshot.data.docs.length,
+                                                itemBuilder: (context, index) =>
+                                                    CommentCard(
+                                                      widget.doc,
+                                                      snapshot.data.docs[index],
+                                                      last: false,
+                                                    ))
+                                        : Center(
+                                            child: CircularProgressIndicator(),
+                                          ))),
+                        Stack(alignment: Alignment.bottomRight, children: [
+                          Card(
+                              elevation: 10,
+                              child: Container(
+                                  color: Colors.transparent,
+                                  child: TextField(
+                                    controller: addCommentController,
+                                    focusNode: addCommentFocusNode,
+                                    decoration: InputDecoration(
+                                        hintText: 'Type your comment'),
+                                    maxLines: 3,
+                                    maxLength: 150,
+                                  ))),
+                          IconButton(padding: EdgeInsetsDirectional.only(bottom: 25),
+                              icon: Icon(Icons.send),
+                              onPressed: () {
+                                // add comment
+                                FirebaseFirestore.instance
+                                    .runTransaction((transaction) async {
+                                  transaction.set(
+                                      FirebaseFirestore.instance
+                                          .collection('Thoughts')
+                                          .doc(widget.doc.id)
+                                          .collection('Comments')
+                                          .doc(),
+                                      {
+                                        'Author': 'roskee',
+                                        'date': Timestamp.now(),
+                                        'content':
+                                            addCommentController.value.text,
+                                        'likes': 0
+                                      });
+                                }).then((value) {
+                                  addCommentController.clear();
+                                });
 
-                            });
-                          }).then((value) 
-                          {
-                             addCommentController.clear();
-                          });
-                         
-                          addCommentFocusNode.unfocus();
-                        })
-                          ]
-                        )
+                                addCommentFocusNode.unfocus();
+                              })
+                        ])
                       ],
                     ),
                   ));

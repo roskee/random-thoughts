@@ -58,6 +58,7 @@ class _HomeState extends State<Home> {
                                       maxLength: 150,
                                     ),
                                     IconButton(
+                                      padding: EdgeInsetsDirectional.only(bottom:20),
                                         icon: Icon(
                                           Icons.send,
                                         ),
@@ -93,6 +94,7 @@ class _HomeState extends State<Home> {
                       if (!snapshot.hasData)
                         return Center(child: CircularProgressIndicator());
                       return CustomScrollView(
+                        
                         slivers: [
                           SliverAppBar(
                             actions: [

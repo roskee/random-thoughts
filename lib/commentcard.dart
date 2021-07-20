@@ -7,8 +7,9 @@ import 'database.dart';
 class CommentCard extends StatelessWidget {
   final DocumentSnapshot parent;
   final DocumentSnapshot doc;
+  final DocumentSnapshot ancestor;
   final bool last;
-  CommentCard(this.parent, this.doc, {this.last = false});
+  CommentCard(this.parent, this.doc, {this.last = false,this.ancestor});
   Widget build(BuildContext context) => Card(
         elevation: 10,
         child: Container(
@@ -48,6 +49,8 @@ class CommentCard extends StatelessWidget {
                             DocumentSnapshot freshSnapshot =
                                 await transaction.get(FirebaseFirestore.instance
                                     .collection('Thoughts')
+                                    .doc(ancestor.id).
+                                    collection('Comments')
                                     .doc(parent.id)
                                     .collection('Comments')
                                     .doc(doc.id));
@@ -61,34 +64,48 @@ class CommentCard extends StatelessWidget {
                     VerticalDivider(),
                   ],
                 )
-              : ExpansionTile(
+              : 
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                                    .collection('Thoughts')
+                                    .doc(parent.id)
+                                    .collection('Comments')
+                                    .doc(doc.id)
+                                    .collection('Comments')
+                                    .snapshots(),
+                builder: (context,snapshot)=>
+                (snapshot.hasData)?
+                ExpansionTile(
                   childrenPadding: EdgeInsets.all(5),
                   title: Row(
                     children: [
                       InkWell(
                           highlightColor: Colors.transparent,
                           onTap: () {
-                            Database.updateDocument(
-                                doc,
-                                (freshSnapshot) => {
-                                      {'likes': freshSnapshot['likes'] + 1}
-                                    });
+                            FirebaseFirestore.instance
+                              .runTransaction((transaction) async {
+                            DocumentSnapshot freshSnapshot =
+                                await transaction.get(FirebaseFirestore.instance
+                                    .collection('Thoughts')
+                                    .doc(parent.id)
+                                    .collection('Comments')
+                                    .doc(doc.id));
+                            transaction.update(freshSnapshot.reference,
+                                {'likes': freshSnapshot['likes'] + 1});
+                          });
                           },
                           child: Icon(Icons.thumb_up)),
                       Text('${doc['likes']}'),
                       VerticalDivider(),
                       Icon(Icons.comment),
-                      Text('10'), // stream builder needed
+                      Text('${snapshot.data.docs.length}'), // stream builder needed
                     ],
                   ),
-                  children: [
-                    CommentCard(
-                      doc,
-                      null,
-                      last: true,
-                    )
-                  ],
-                )
+                  children: 
+                  (snapshot.data.docs.length==0)?
+                  []:List.generate(snapshot.data.docs.length, (index) => CommentCard(doc,snapshot.data.docs[index],last:true,ancestor: parent,))
+                ):Center(child: CircularProgressIndicator(),)
+              )
         ])),
       );
 }
