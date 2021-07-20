@@ -81,10 +81,13 @@ class _ThoughtViewState extends State<ThoughtView> {
                                     maxLines: 3,
                                     maxLength: 150,
                                   ))),
-                          IconButton(padding: EdgeInsetsDirectional.only(bottom: 25),
+                          IconButton(
+                              padding: EdgeInsetsDirectional.only(bottom: 25),
                               icon: Icon(Icons.send),
                               onPressed: () {
                                 // add comment
+                                String content =
+                                    addCommentController.value.text;
                                 FirebaseFirestore.instance
                                     .runTransaction((transaction) async {
                                   transaction.set(
@@ -96,14 +99,12 @@ class _ThoughtViewState extends State<ThoughtView> {
                                       {
                                         'Author': 'roskee',
                                         'date': Timestamp.now(),
-                                        'content':
-                                            addCommentController.value.text,
+                                        'content': content,
                                         'likes': 0
                                       });
                                 }).then((value) {
                                   addCommentController.clear();
                                 });
-
                                 addCommentFocusNode.unfocus();
                               })
                         ])
@@ -116,10 +117,6 @@ class _ThoughtViewState extends State<ThoughtView> {
             child: Container(
                 margin: EdgeInsets.all(5),
                 padding: EdgeInsets.all(10),
-                // decoration: BoxDecoration(
-                //     border: Border.all(
-                //         color: Colors.grey, style: BorderStyle.solid, width: 2),
-                //     borderRadius: BorderRadius.all(Radius.circular(10))),
                 alignment: Alignment.center,
                 child: Column(children: [
                   Row(children: [

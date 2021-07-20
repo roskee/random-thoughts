@@ -58,12 +58,14 @@ class _HomeState extends State<Home> {
                                       maxLength: 150,
                                     ),
                                     IconButton(
-                                      padding: EdgeInsetsDirectional.only(bottom:20),
+                                        padding: EdgeInsetsDirectional.only(
+                                            bottom: 20),
                                         icon: Icon(
                                           Icons.send,
                                         ),
                                         onPressed: () {
-                                          if(addThoughtController.value.text.isEmpty)return;
+                                          if (addThoughtController
+                                              .value.text.isEmpty) return;
                                           FirebaseFirestore.instance
                                               .runTransaction(
                                                   (transaction) async {
@@ -94,7 +96,6 @@ class _HomeState extends State<Home> {
                       if (!snapshot.hasData)
                         return Center(child: CircularProgressIndicator());
                       return CustomScrollView(
-                        
                         slivers: [
                           SliverAppBar(
                             actions: [
@@ -119,25 +120,6 @@ class _HomeState extends State<Home> {
                           ))
                         ],
                       );
-                      // ListView.builder(
-                      //   itemCount: 6,
-                      //   itemBuilder: (context, index) {
-                      //     return ThoughtView(snapshot.data.docs[index]);
-                      // ThoughtListItem(
-                      //   snapshot.data.docs[index],
-                      //   IconButton(
-                      //       icon: Icon(Icons.thumb_up),
-                      //       onPressed: () {
-                      //         // update likes count
-                      //        _database.updateDoc(snapshot.data.docs[index],
-                      //        (freshSnapshot)=> {'likes': freshSnapshot['likes'] + 1});
-                      //       }
-                      //     ),
-                      //     (){
-                      //       // details about post
-                      //       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThoughtView(snapshot.data.docs[index])));
-                      //     }
-                      // );
                     },
                   )),
       );
