@@ -12,8 +12,17 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   GlobalKey<FormState> _loginForm;
+  TextEditingController emailController;
+  TextEditingController passwordController;
+  bool loginError;
+  Widget loginErrorMessage;
   void initState() {
+    super.initState();
     _loginForm = GlobalKey<FormState>();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    loginError = false;
+    loginErrorMessage = Text('');
   }
 
   Widget build(BuildContext context) => Card(
@@ -34,6 +43,7 @@ class _LoginState extends State<Login> {
                   child: Column(
                     children: [
                       TextFormField(
+                        controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: 'Email',
@@ -43,6 +53,7 @@ class _LoginState extends State<Login> {
                             : null,
                       ),
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(hintText: 'Password'),
                         validator: (value) => (value.isEmpty)
@@ -54,9 +65,44 @@ class _LoginState extends State<Login> {
                     ],
                   ))),
           Divider(),
+          Visibility(visible: loginError, child: loginErrorMessage),
           ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_loginForm.currentState.validate()) {
+                  try {
+                    setState(() {
+                      loginErrorMessage = LinearProgressIndicator();
+                    });
+                    await widget.auth.signInWithEmailAndPassword(
+                        email: emailController.value.text,
+                        password: passwordController.value.text);
+                  } catch (e) {
+                    String errorMessage;
+                    switch (e.code) {
+                      case 'user-not-found':
+                        errorMessage = 'There is no account with this email';
+                        break;
+                      case 'invalid-email':
+                        errorMessage = 'You have entered an invalid email';
+                        break;
+                      case 'user-disabled':
+                        errorMessage =
+                            'The account you tried to login to is currently disabled. contact administrators';
+                        break;
+                      case 'wrong-password':
+                        errorMessage = "The password is incorrect";
+                        break;
+                      default:
+                        errorMessage = 'Unknown Error has occured';
+                    }
+                    setState(() {
+                      loginError = true;
+                      loginErrorMessage = Text(
+                        errorMessage,
+                        style: TextStyle(color: Colors.red),
+                      );
+                    });
+                  }
                   // auth.signIn
                   // call callback
                 }

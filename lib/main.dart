@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'database.dart';
 import 'login.dart';
+import 'user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Database _database;
+  UserInstance _user;
   FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController addThoughtController;
   GlobalKey<ScaffoldState> _scaffoldKey;
@@ -27,6 +29,7 @@ class _HomeState extends State<Home> {
     print(auth.currentUser);
     _scaffoldKey = GlobalKey<ScaffoldState>();
     addThoughtController = TextEditingController();
+    _user = UserInstance.getInstance(auth);
     Database.getInstance().then((value) => setState(() {
           _database = value;
         }));
@@ -38,97 +41,100 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
-        home: (auth.currentUser==null)?
-        Login(auth,(){
-          
-        })
-        :Scaffold(
-            key: _scaffoldKey,
-            floatingActionButton: FloatingActionButton(
-              mini: true,
-              child: Icon(Icons.post_add),
-              onPressed: () {
-                showModalBottomSheet(
-                    context: _scaffoldKey.currentContext,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => Card(
-                          child: Container(
-                              color: Colors.transparent,
-                              child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    TextField(
-                                      controller: addThoughtController,
-                                      decoration: InputDecoration(
-                                        hintText: 'What are you thinking?',
-                                      ),
-                                      maxLines: 6,
-                                      maxLength: 150,
-                                    ),
-                                    IconButton(
-                                        padding: EdgeInsetsDirectional.only(
-                                            bottom: 20),
-                                        icon: Icon(
-                                          Icons.send,
+        home: (_user.notLoggedin)
+            ? Login(auth, () {
+                setState(() {
+                  _user.reload(auth);
+                });
+              })
+            : Scaffold(
+                key: _scaffoldKey,
+                floatingActionButton: FloatingActionButton(
+                  mini: true,
+                  child: Icon(Icons.post_add),
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: _scaffoldKey.currentContext,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => Card(
+                              child: Container(
+                                  color: Colors.transparent,
+                                  child: Stack(
+                                      alignment: Alignment.bottomRight,
+                                      children: [
+                                        TextField(
+                                          controller: addThoughtController,
+                                          decoration: InputDecoration(
+                                            hintText: 'What are you thinking?',
+                                          ),
+                                          maxLines: 6,
+                                          maxLength: 150,
                                         ),
-                                        onPressed: () {
-                                          if (addThoughtController
-                                              .value.text.isEmpty) return;
-                                          FirebaseFirestore.instance
-                                              .runTransaction(
-                                                  (transaction) async {
-                                            transaction.set(
-                                                FirebaseFirestore.instance
-                                                    .collection('Thoughts')
-                                                    .doc(),
-                                                {
-                                                  'Author': 'roskee',
-                                                  'content':
-                                                      addThoughtController
-                                                          .value.text,
-                                                  'date': Timestamp.now(),
-                                                  'likes': 0
-                                                });
-                                            Navigator.of(context).pop();
-                                          });
-                                        })
-                                  ])),
-                        ));
-              },
-            ),
-            body: (_database == null)
-                ? Center(child: CircularProgressIndicator())
-                : StreamBuilder(
-                    stream: _database.getCollection('Thoughts'),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData)
-                        return Center(child: CircularProgressIndicator());
-                      return CustomScrollView(
-                        slivers: [
-                          SliverAppBar(
-                            actions: [
-                              PopupMenuButton(
-                                  icon: Icon(Icons.face),
-                                  itemBuilder: (context) => [
-                                        PopupMenuItem(child: Text('Settings')),
-                                        PopupMenuItem(child: Text('About'))
-                                      ])
+                                        IconButton(
+                                            padding: EdgeInsetsDirectional.only(
+                                                bottom: 20),
+                                            icon: Icon(
+                                              Icons.send,
+                                            ),
+                                            onPressed: () {
+                                              if (addThoughtController
+                                                  .value.text.isEmpty) return;
+                                              FirebaseFirestore.instance
+                                                  .runTransaction(
+                                                      (transaction) async {
+                                                transaction.set(
+                                                    FirebaseFirestore.instance
+                                                        .collection('Thoughts')
+                                                        .doc(),
+                                                    {
+                                                      'Author': 'roskee',
+                                                      'content':
+                                                          addThoughtController
+                                                              .value.text,
+                                                      'date': Timestamp.now(),
+                                                      'likes': 0
+                                                    });
+                                                Navigator.of(context).pop();
+                                              });
+                                            })
+                                      ])),
+                            ));
+                  },
+                ),
+                body: (_database == null)
+                    ? Center(child: CircularProgressIndicator())
+                    : StreamBuilder(
+                        stream: _database.getCollection('Thoughts'),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData)
+                            return Center(child: CircularProgressIndicator());
+                          return CustomScrollView(
+                            slivers: [
+                              SliverAppBar(
+                                actions: [
+                                  PopupMenuButton(
+                                      icon: Icon(Icons.face),
+                                      itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                                child: Text('Settings')),
+                                            PopupMenuItem(child: Text('About'))
+                                          ])
+                                ],
+                                stretch: false,
+                                expandedHeight: 150,
+                                flexibleSpace: FlexibleSpaceBar(
+                                  title: Text('Random Thoughts'),
+                                ),
+                              ),
+                              SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                (context, index) => ThoughtView(
+                                    _database, snapshot.data.docs[index]),
+                                childCount: snapshot.data.docs.length,
+                              ))
                             ],
-                            stretch: false,
-                            expandedHeight: 150,
-                            flexibleSpace: FlexibleSpaceBar(
-                              title: Text('Random Thoughts'),
-                            ),
-                          ),
-                          SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                            (context, index) => ThoughtView(
-                                _database, snapshot.data.docs[index]),
-                            childCount: snapshot.data.docs.length,
-                          ))
-                        ],
-                      );
-                    },
-                  )),
+                          );
+                        },
+                      )),
       );
 }
