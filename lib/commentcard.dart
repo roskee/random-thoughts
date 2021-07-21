@@ -1,15 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:random_thoughts/user.dart';
 
 import 'database.dart';
 
 class CommentCard extends StatefulWidget {
+  final UserInstance _user;
   final DocumentSnapshot parent;
   final DocumentSnapshot doc;
   final DocumentSnapshot ancestor;
   final bool last;
-  CommentCard(this.parent, this.doc, {this.last = false, this.ancestor});
+  CommentCard(this._user,this.parent, this.doc, {this.last = false, this.ancestor});
   _CommentCardState createState() => _CommentCardState();
 }
 
@@ -162,7 +164,7 @@ class _CommentCardState extends State<CommentCard> {
                                                           freshSnapshot
                                                               .reference,
                                                           {
-                                                            'Author': 'Alemu',
+                                                            'Author': widget._user.username,
                                                             'content': content,
                                                             'date':
                                                                 Timestamp.now(),
@@ -183,6 +185,7 @@ class _CommentCardState extends State<CommentCard> {
                               : List.generate(
                                   snapshot.data.docs.length,
                                   (index) => CommentCard(
+                                    widget._user,
                                         widget.doc,
                                         snapshot.data.docs[index],
                                         last: true,

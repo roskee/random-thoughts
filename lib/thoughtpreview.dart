@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:random_thoughts/user.dart';
 
 import 'commentcard.dart';
 import 'database.dart';
 
 class ThoughtView extends StatefulWidget {
   final Database database;
+  final UserInstance _user;
   final DocumentSnapshot doc;
-  ThoughtView(this.database, this.doc);
+  ThoughtView(this.database, this._user, this.doc);
   _ThoughtViewState createState() => _ThoughtViewState();
 }
 
@@ -61,6 +64,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                                                     snapshot.data.docs.length,
                                                 itemBuilder: (context, index) =>
                                                     CommentCard(
+                                                      widget._user,
                                                       widget.doc,
                                                       snapshot.data.docs[index],
                                                       last: false,
@@ -97,7 +101,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                                           .collection('Comments')
                                           .doc(),
                                       {
-                                        'Author': 'roskee',
+                                        'Author': widget._user.username,
                                         'date': Timestamp.now(),
                                         'content': content,
                                         'likes': 0

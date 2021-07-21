@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
                                         TextField(
                                           controller: addThoughtController,
                                           decoration: InputDecoration(
-                                            hintText: 'What are you thinking?',
+                                            hintText: 'What are you thinking ${_user.username}?',
                                           ),
                                           maxLines: 6,
                                           maxLength: 150,
@@ -116,7 +116,7 @@ class _HomeState extends State<Home> {
                                                         .collection('Thoughts')
                                                         .doc(),
                                                     {
-                                                      'Author': 'roskee',
+                                                      'Author': _user.username,
                                                       'content':
                                                           addThoughtController
                                                               .value.text,
@@ -141,12 +141,38 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
+                                  Center(child:Text(_user.username)),
                                   PopupMenuButton(
+                                    onSelected: (value){
+                                      switch(value){
+                                        case 'settings':
+                                        break;
+                                        case 'signout':
+                                        auth.signOut().then((value) =>{
+                                          setState((){
+                                            notLoggedin = true;
+                                            _user.signout(auth, (){
+
+                                            });
+                                          })
+                                        });
+                                        break;
+                                        case 'about':
+                                        break;
+                                      }
+                                    },
                                       icon: Icon(Icons.face),
                                       itemBuilder: (context) => [
                                             PopupMenuItem(
-                                                child: Text('Settings')),
-                                            PopupMenuItem(child: Text('About'))
+                                              value: 'settings',
+                                                child: Text('Settings'),
+                                                ),
+                                            PopupMenuItem(
+                                              value: 'signout',
+                                                child: Text('Sign out')),
+                                            PopupMenuItem(
+                                              value: 'about',
+                                              child: Text('About'))
                                           ])
                                 ],
                                 stretch: false,
@@ -158,7 +184,7 @@ class _HomeState extends State<Home> {
                               SliverList(
                                   delegate: SliverChildBuilderDelegate(
                                 (context, index) => ThoughtView(
-                                    _database, snapshot.data.docs[index]),
+                                    _database,_user, snapshot.data.docs[index]),
                                 childCount: snapshot.data.docs.length,
                               ))
                             ],
