@@ -189,7 +189,7 @@ class _CommentCardState extends State<CommentCard> {
                                         ancestor: widget.parent,
                                       )))
                       : Center(
-                          child: CircularProgressIndicator(),
+                          child: LinearProgressIndicator(),
                         ))
         ])),
       );

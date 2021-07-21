@@ -21,12 +21,37 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Database _database;
   UserInstance _user;
-  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseAuth auth;
   TextEditingController addThoughtController;
   GlobalKey<ScaffoldState> _scaffoldKey;
+  bool notLoggedin;
   void initState() {
     super.initState();
-    print(auth.currentUser);
+    auth = FirebaseAuth.instance;
+    notLoggedin = true;
+    auth.userChanges().listen((event) {
+      if (event == null) {
+        setState(() {
+          notLoggedin = true;
+        });
+      } else
+        setState(() {
+          notLoggedin = false;
+        });
+    });
+    if (auth.currentUser != null)
+      auth.currentUser.reload().then((value) => {
+            if (auth.currentUser == null)
+              _user.signout(auth, () {
+                setState(() {
+                  notLoggedin = true;
+                });
+              })
+            else
+              setState(() {
+                notLoggedin = false;
+              })
+          });
     _scaffoldKey = GlobalKey<ScaffoldState>();
     addThoughtController = TextEditingController();
     _user = UserInstance.getInstance(auth);
@@ -41,10 +66,14 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
-        home: (_user.notLoggedin)
+        home: (notLoggedin)
             ? Login(auth, () {
                 setState(() {
-                  _user.reload(auth);
+                  _user.reload(auth, () {
+                    setState(() {
+                      notLoggedin = false;
+                    });
+                  });
                 });
               })
             : Scaffold(
