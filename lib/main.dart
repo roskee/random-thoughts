@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'database.dart';
+import 'login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +19,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Database _database;
+  FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController addThoughtController;
   GlobalKey<ScaffoldState> _scaffoldKey;
   void initState() {
     super.initState();
+    print(auth.currentUser);
     _scaffoldKey = GlobalKey<ScaffoldState>();
     addThoughtController = TextEditingController();
     Database.getInstance().then((value) => setState(() {
@@ -34,7 +38,11 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
-        home: Scaffold(
+        home: (auth.currentUser==null)?
+        Login(auth,(){
+          
+        })
+        :Scaffold(
             key: _scaffoldKey,
             floatingActionButton: FloatingActionButton(
               mini: true,
