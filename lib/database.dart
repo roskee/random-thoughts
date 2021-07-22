@@ -19,24 +19,29 @@ class Database {
   dynamic getFieldOf(dynamic doc, int index, String fieldName) {
     return doc.data.docs[index][fieldName];
   }
-  Future<Map<String,dynamic>> getCurrentUser(String username) async{
-    DocumentSnapshot user = await FirebaseFirestore.instance.collection('Users').doc(username).get();
+
+  Future<Map<String, dynamic>> getCurrentUser(String username) async {
+    DocumentSnapshot user = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(username)
+        .get();
     return {
       'firstname': user['firstname'],
-      'lastname':user['lastname'],
-      'postcount':user['postcount'],
-      'likecount':user['likecount'],
-      'username':user['username']
+      'lastname': user['lastname'],
+      'postcount': user['postcount'],
+      'likecount': user['likecount'],
+      'username': user['username']
     };
   }
+
   // static updateDocument(DocumentSnapshot doc,Function updater){
   //   FirebaseFirestore.instance.runTransaction((transaction) async {
   //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
   //     transaction.update(freshSnapshot.reference, updater(freshSnapshot));
   //   });
   // }
-  Future<bool> likeComment(DocumentReference doc, String username) async{
-    bool returnbool=false;
+  Future<bool> likeComment(DocumentReference doc, String username) async {
+    bool returnbool = false;
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentSnapshot snapshot = await transaction.get(doc);
       if (snapshot['likers'].contains(username)) {

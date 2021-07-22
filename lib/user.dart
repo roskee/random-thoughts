@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserInstance {
-  bool notLoggedin=true;
-  String username='';
-  String firstName='';
-  String lastName='';
-  String email='';
-  String photoUri='';
-  bool isVerified=false;
+  bool notLoggedin = true;
+  String username = '';
+  String firstName = '';
+  String lastName = '';
+  String email = '';
+  String photoUri = '';
+  bool isVerified = false;
   static UserInstance _user;
   static UserInstance getInstance(FirebaseAuth auth) {
     if (_user == null) _user = UserInstance._fromAuth(auth);

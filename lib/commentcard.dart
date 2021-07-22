@@ -32,10 +32,10 @@ class _CommentCardState extends State<CommentCard> {
           replyLike = true;
         });
     } else {
-      if(widget.doc.get('likers').contains(widget._user.username))
-      setState(() {
-              commentLike = true;
-            });
+      if (widget.doc.get('likers').contains(widget._user.username))
+        setState(() {
+          commentLike = true;
+        });
     }
   }
 
@@ -154,11 +154,11 @@ class _CommentCardState extends State<CommentCard> {
                                               : Colors.black,
                                         ),
                                         Visibility(
-                                          visible: commentLikeLoading,
-                                          child: SizedBox(
-                                            width:20,
-                                            child:LinearProgressIndicator())
-                                        )
+                                            visible: commentLikeLoading,
+                                            child: SizedBox(
+                                                width: 20,
+                                                child:
+                                                    LinearProgressIndicator()))
                                       ])),
                               Text('${widget.doc['likes']}'),
                               VerticalDivider(),

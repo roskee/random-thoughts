@@ -5,6 +5,7 @@ import 'package:random_thoughts/profile.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'about.dart';
 import 'database.dart';
 import 'login.dart';
 import 'user.dart';
@@ -141,12 +142,20 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
-                                  Center(child: Text(_user.username,style: TextStyle(fontSize: 18),)),
+                                  Center(
+                                      child: Text(
+                                    _user.username,
+                                    style: TextStyle(fontSize: 18),
+                                  )),
                                   PopupMenuButton(
                                       onSelected: (value) {
                                         switch (value) {
                                           case 'settings':
-                                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Profile(_user,_database)));
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Profile(
+                                                            _user, _database)));
                                             break;
                                           case 'signout':
                                             auth.signOut().then((value) => {
@@ -159,6 +168,10 @@ class _HomeState extends State<Home> {
                                                 });
                                             break;
                                           case 'about':
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        About()));
                                             break;
                                         }
                                       },
@@ -182,16 +195,20 @@ class _HomeState extends State<Home> {
                                   title: Text('Random Thoughts'),
                                 ),
                               ),
-                              (snapshot.data.docs.length==0)?
-                              SliverFillRemaining(
-                                child: Center(child:Text('No posts yet',style: TextStyle(fontSize:20),)),
-                              ):
-                              SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                (context, index) => ThoughtView(_database,
-                                    _user, snapshot.data.docs[index]),
-                                childCount: snapshot.data.docs.length,
-                              ))
+                              (snapshot.data.docs.length == 0)
+                                  ? SliverFillRemaining(
+                                      child: Center(
+                                          child: Text(
+                                        'No posts yet',
+                                        style: TextStyle(fontSize: 20),
+                                      )),
+                                    )
+                                  : SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                      (context, index) => ThoughtView(_database,
+                                          _user, snapshot.data.docs[index]),
+                                      childCount: snapshot.data.docs.length,
+                                    ))
                             ],
                           );
                         },
