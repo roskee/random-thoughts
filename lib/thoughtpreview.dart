@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/user.dart';
@@ -17,10 +18,17 @@ class ThoughtView extends StatefulWidget {
 class _ThoughtViewState extends State<ThoughtView> {
   TextEditingController addCommentController;
   FocusNode addCommentFocusNode;
+  bool like = false;
+  bool likeLoading = false;
   void initState() {
     super.initState();
     addCommentController = TextEditingController();
     addCommentFocusNode = FocusNode();
+    if (widget.doc.get('likers').contains(widget._user.username)) {
+      setState(() {
+        like = true;
+      });
+    }
   }
 
   Widget build(BuildContext context) {
@@ -164,10 +172,32 @@ class _ThoughtViewState extends State<ThoughtView> {
                             InkWell(
                                 highlightColor: Colors.transparent,
                                 onTap: () {
-                                  widget.database.likePost(widget.doc.reference,
-                                      widget._user.username);
+                                  setState(() {
+                                    like = !like;
+                                    likeLoading = true;
+                                  });
+                                  widget.database
+                                      .likePost(widget.doc.reference,
+                                          widget._user.username)
+                                      .then((value) => {
+                                            setState(() {
+                                              like = value;
+                                              likeLoading = false;
+                                            })
+                                          });
                                 },
-                                child: Icon(Icons.thumb_up)),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                  Icon(Icons.thumb_up,
+                                      color:
+                                          (like) ? Colors.blue : Colors.black),
+                                          Visibility(
+                                            visible: likeLoading,
+                                            child:SizedBox(
+                                              width: 20,
+                                              child:LinearProgressIndicator()))
+                                ])),
                             VerticalDivider(),
                             Text('${widget.doc['likes']}'),
                           ],

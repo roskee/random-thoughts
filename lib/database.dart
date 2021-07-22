@@ -19,15 +19,25 @@ class Database {
   dynamic getFieldOf(dynamic doc, int index, String fieldName) {
     return doc.data.docs[index][fieldName];
   }
-
+  Future<Map<String,dynamic>> getCurrentUser(String username) async{
+    DocumentSnapshot user = await FirebaseFirestore.instance.collection('Users').doc(username).get();
+    return {
+      'firstname': user['firstname'],
+      'lastname':user['lastname'],
+      'postcount':user['postcount'],
+      'likecount':user['likecount'],
+      'username':user['username']
+    };
+  }
   // static updateDocument(DocumentSnapshot doc,Function updater){
   //   FirebaseFirestore.instance.runTransaction((transaction) async {
   //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
   //     transaction.update(freshSnapshot.reference, updater(freshSnapshot));
   //   });
   // }
-  bool likeComment(DocumentReference doc, String username) {
-    FirebaseFirestore.instance.runTransaction((transaction) async {
+  Future<bool> likeComment(DocumentReference doc, String username) async{
+    bool returnbool=false;
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentSnapshot snapshot = await transaction.get(doc);
       if (snapshot['likers'].contains(username)) {
         // unlike
@@ -37,7 +47,7 @@ class Database {
           'likes': snapshot['likes'] - 1,
           'likers': likers // remove username
         });
-        return false;
+        returnbool = false;
       } else {
         List likers = snapshot['likers'];
         likers.add(username);
@@ -45,14 +55,15 @@ class Database {
           'likes': snapshot['likes'] + 1,
           'likers': likers // add username
         });
-        return true;
+        returnbool = true;
       }
     });
-    return null;
+    return returnbool;
   }
 
   Future<bool> likePost(DocumentReference doc, String username) async {
-    FirebaseFirestore.instance.runTransaction((transaction) async {
+    bool returnbool = false;
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentSnapshot snapshot =
           await transaction.get(doc); // document to be liked
       DocumentSnapshot usersnapshot = await transaction.get(FirebaseFirestore
@@ -67,7 +78,7 @@ class Database {
             {'likes': snapshot['likes'] - 1, 'likers': likers});
         transaction.update(usersnapshot.reference,
             {'likecount': usersnapshot['likecount'] - 1});
-        return false;
+        returnbool = false;
       } else {
         List likers = snapshot['likers'];
         likers.add(username);
@@ -77,10 +88,10 @@ class Database {
         });
         transaction.update(usersnapshot.reference,
             {'likecount': usersnapshot['likecount'] + 1});
-        return true;
+        returnbool = true;
       }
     });
-    return null;
+    return returnbool;
   }
 
   Future<bool> postElement(

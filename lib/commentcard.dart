@@ -19,9 +19,24 @@ class CommentCard extends StatefulWidget {
 
 class _CommentCardState extends State<CommentCard> {
   TextEditingController replyController;
+  bool commentLike = false;
+  bool commentLikeLoading = false;
+  bool replyLike = false;
+  bool replyLikeLoading = false;
   void initState() {
     super.initState();
     replyController = TextEditingController();
+    if (widget.last) {
+      if (widget.doc.get('likers').contains(widget._user.username))
+        setState(() {
+          replyLike = true;
+        });
+    } else {
+      if(widget.doc.get('likers').contains(widget._user.username))
+      setState(() {
+              commentLike = true;
+            });
+    }
   }
 
   Widget build(BuildContext context) => Card(
@@ -58,17 +73,37 @@ class _CommentCardState extends State<CommentCard> {
                     InkWell(
                         highlightColor: Colors.transparent,
                         onTap: () {
-                          widget._database.likeComment(
-                              FirebaseFirestore.instance
-                                  .collection('Thoughts')
-                                  .doc(widget.ancestor.id)
-                                  .collection('Comments')
-                                  .doc(widget.parent.id)
-                                  .collection('Comments')
-                                  .doc(widget.doc.id),
-                              widget._user.username);
+                          setState(() {
+                            replyLike = !replyLike;
+                            replyLikeLoading = true;
+                          });
+                          widget._database
+                              .likeComment(
+                                  FirebaseFirestore.instance
+                                      .collection('Thoughts')
+                                      .doc(widget.ancestor.id)
+                                      .collection('Comments')
+                                      .doc(widget.parent.id)
+                                      .collection('Comments')
+                                      .doc(widget.doc.id),
+                                  widget._user.username)
+                              .then((value) {
+                            replyLike = value;
+                            replyLikeLoading = false;
+                          });
                         },
-                        child: Icon(Icons.thumb_up)),
+                        child: Stack(alignment: Alignment.center, children: [
+                          Icon(
+                            Icons.thumb_up,
+                            color: (replyLike) ? Colors.blue : Colors.black,
+                          ),
+                          Visibility(
+                              visible: replyLikeLoading,
+                              child: SizedBox(
+                                width: 20,
+                                child: LinearProgressIndicator(),
+                              ))
+                        ])),
                     VerticalDivider(),
                     Text('${widget.doc['likes']}'),
                     VerticalDivider(),
@@ -90,15 +125,41 @@ class _CommentCardState extends State<CommentCard> {
                               InkWell(
                                   highlightColor: Colors.transparent,
                                   onTap: () {
-                                    widget._database.likeComment(
-                                        FirebaseFirestore.instance
-                                            .collection('Thoughts')
-                                            .doc(widget.parent.id)
-                                            .collection('Comments')
-                                            .doc(widget.doc.id),
-                                        widget._user.username);
+                                    setState(() {
+                                      commentLike = !commentLike;
+                                      commentLikeLoading = true;
+                                    });
+                                    widget._database
+                                        .likeComment(
+                                            FirebaseFirestore.instance
+                                                .collection('Thoughts')
+                                                .doc(widget.parent.id)
+                                                .collection('Comments')
+                                                .doc(widget.doc.id),
+                                            widget._user.username)
+                                        .then((value) {
+                                      setState(() {
+                                        commentLike = value;
+                                        commentLikeLoading = false;
+                                      });
+                                    });
                                   },
-                                  child: Icon(Icons.thumb_up)),
+                                  child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.thumb_up,
+                                          color: (commentLike)
+                                              ? Colors.blue
+                                              : Colors.black,
+                                        ),
+                                        Visibility(
+                                          visible: commentLikeLoading,
+                                          child: SizedBox(
+                                            width:20,
+                                            child:LinearProgressIndicator())
+                                        )
+                                      ])),
                               Text('${widget.doc['likes']}'),
                               VerticalDivider(),
                               Icon(Icons.reply),

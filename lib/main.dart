@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:random_thoughts/profile.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -140,17 +141,20 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
-                                  Center(child: Text(_user.username)),
+                                  Center(child: Text(_user.username,style: TextStyle(fontSize: 18),)),
                                   PopupMenuButton(
                                       onSelected: (value) {
                                         switch (value) {
                                           case 'settings':
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Profile(_user,_database)));
                                             break;
                                           case 'signout':
                                             auth.signOut().then((value) => {
                                                   setState(() {
                                                     notLoggedin = true;
-                                                    _user.signout(auth, () {});
+                                                    _user.signout(auth, () {
+                                                      notLoggedin = true;
+                                                    });
                                                   })
                                                 });
                                             break;
