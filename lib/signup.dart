@@ -177,7 +177,7 @@ class _SignupState extends State<Signup> {
         value.user.updateDisplayName('${_usernameController.value.text}');
         FirebaseFirestore.instance.runTransaction((transaction) async {
           transaction
-              .set(FirebaseFirestore.instance.collection('Users').doc(), {
+              .set(FirebaseFirestore.instance.collection('Users').doc(_usernameController.value.text), {
             'username': _usernameController.value.text,
             'firstname': _firstNameController.value.text,
             'lastname': _lastNameController.value.text,

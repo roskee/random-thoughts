@@ -94,7 +94,8 @@ class _HomeState extends State<Home> {
                                         TextField(
                                           controller: addThoughtController,
                                           decoration: InputDecoration(
-                                            hintText: 'What are you thinking ${_user.username}?',
+                                            hintText:
+                                                'What are you thinking ${_user.username}?',
                                           ),
                                           maxLines: 6,
                                           maxLength: 150,
@@ -106,23 +107,21 @@ class _HomeState extends State<Home> {
                                               Icons.send,
                                             ),
                                             onPressed: () {
+                                              // add a new post
                                               if (addThoughtController
                                                   .value.text.isEmpty) return;
-                                              FirebaseFirestore.instance
-                                                  .runTransaction(
-                                                      (transaction) async {
-                                                transaction.set(
-                                                    FirebaseFirestore.instance
-                                                        .collection('Thoughts')
-                                                        .doc(),
-                                                    {
-                                                      'Author': _user.username,
-                                                      'content':
-                                                          addThoughtController
-                                                              .value.text,
-                                                      'date': Timestamp.now(),
-                                                      'likes': 0
-                                                    });
+                                              _database
+                                                  .postElement(
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                              'Thoughts')
+                                                          .doc(),
+                                                      addThoughtController
+                                                          .value.text,
+                                                      _user.username,
+                                                      true)
+                                                  .then((value) {
+                                                addThoughtController.clear();
                                                 Navigator.of(context).pop();
                                               });
                                             })
@@ -141,38 +140,36 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
-                                  Center(child:Text(_user.username)),
+                                  Center(child: Text(_user.username)),
                                   PopupMenuButton(
-                                    onSelected: (value){
-                                      switch(value){
-                                        case 'settings':
-                                        break;
-                                        case 'signout':
-                                        auth.signOut().then((value) =>{
-                                          setState((){
-                                            notLoggedin = true;
-                                            _user.signout(auth, (){
-
-                                            });
-                                          })
-                                        });
-                                        break;
-                                        case 'about':
-                                        break;
-                                      }
-                                    },
+                                      onSelected: (value) {
+                                        switch (value) {
+                                          case 'settings':
+                                            break;
+                                          case 'signout':
+                                            auth.signOut().then((value) => {
+                                                  setState(() {
+                                                    notLoggedin = true;
+                                                    _user.signout(auth, () {});
+                                                  })
+                                                });
+                                            break;
+                                          case 'about':
+                                            break;
+                                        }
+                                      },
                                       icon: Icon(Icons.face),
                                       itemBuilder: (context) => [
                                             PopupMenuItem(
                                               value: 'settings',
-                                                child: Text('Settings'),
-                                                ),
+                                              child: Text('Settings'),
+                                            ),
                                             PopupMenuItem(
-                                              value: 'signout',
+                                                value: 'signout',
                                                 child: Text('Sign out')),
                                             PopupMenuItem(
-                                              value: 'about',
-                                              child: Text('About'))
+                                                value: 'about',
+                                                child: Text('About'))
                                           ])
                                 ],
                                 stretch: false,
@@ -181,10 +178,14 @@ class _HomeState extends State<Home> {
                                   title: Text('Random Thoughts'),
                                 ),
                               ),
+                              (snapshot.data.docs.length==0)?
+                              SliverFillRemaining(
+                                child: Center(child:Text('No posts yet',style: TextStyle(fontSize:20),)),
+                              ):
                               SliverList(
                                   delegate: SliverChildBuilderDelegate(
-                                (context, index) => ThoughtView(
-                                    _database,_user, snapshot.data.docs[index]),
+                                (context, index) => ThoughtView(_database,
+                                    _user, snapshot.data.docs[index]),
                                 childCount: snapshot.data.docs.length,
                               ))
                             ],

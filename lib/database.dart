@@ -12,28 +12,98 @@ class Database {
   Database._();
 
   dynamic getCollection(String name) {
-    if(!isConnected())return false;
+    if (!isConnected()) return false;
     return FirebaseFirestore.instance.collection(name).snapshots();
   }
 
   dynamic getFieldOf(dynamic doc, int index, String fieldName) {
     return doc.data.docs[index][fieldName];
   }
+
   // static updateDocument(DocumentSnapshot doc,Function updater){
   //   FirebaseFirestore.instance.runTransaction((transaction) async {
   //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
   //     transaction.update(freshSnapshot.reference, updater(freshSnapshot));
   //   });
   // }
-  Future<bool> updateDoc(dynamic doc, Function updater) async  {
-    
-    if(!isConnected()) return false;
+  bool likeComment(DocumentReference doc, String username) {
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
-      transaction.update(freshSnapshot.reference, updater(freshSnapshot));
+      DocumentSnapshot snapshot = await transaction.get(doc);
+      if (snapshot['likers'].contains(username)) {
+        // unlike
+        List likers = snapshot['likers'];
+        likers.remove(username);
+        transaction.update(snapshot.reference, {
+          'likes': snapshot['likes'] - 1,
+          'likers': likers // remove username
+        });
+        return false;
+      } else {
+        List likers = snapshot['likers'];
+        likers.add(username);
+        transaction.update(snapshot.reference, {
+          'likes': snapshot['likes'] + 1,
+          'likers': likers // add username
+        });
+        return true;
+      }
+    });
+    return null;
+  }
+
+  Future<bool> likePost(DocumentReference doc, String username) async {
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot =
+          await transaction.get(doc); // document to be liked
+      DocumentSnapshot usersnapshot = await transaction.get(FirebaseFirestore
+          .instance
+          .collection('Users')
+          .doc(snapshot['Author'])); // the user to accept the like
+      if (snapshot['likers'].contains(username)) {
+        // unlike
+        List likers = snapshot['likers'];
+        likers.remove(username);
+        transaction.update(snapshot.reference,
+            {'likes': snapshot['likes'] - 1, 'likers': likers});
+        transaction.update(usersnapshot.reference,
+            {'likecount': usersnapshot['likecount'] - 1});
+        return false;
+      } else {
+        List likers = snapshot['likers'];
+        likers.add(username);
+        transaction.update(snapshot.reference, {
+          'likes': snapshot['likes'] + 1,
+          'likers': likers // add username
+        });
+        transaction.update(usersnapshot.reference,
+            {'likecount': usersnapshot['likecount'] + 1});
+        return true;
+      }
+    });
+    return null;
+  }
+
+  Future<bool> postElement(
+      DocumentReference doc, String comment, String author, bool count) async {
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(doc);
+      if (count) {
+        DocumentSnapshot usersnapshot = await transaction
+            .get(FirebaseFirestore.instance.collection('Users').doc(author));
+        transaction.update(usersnapshot.reference,
+            {'postcount': usersnapshot['postcount'] + 1});
+      }
+      transaction.set(snapshot.reference, {
+        'Author': author,
+        'content': comment,
+        'date': Timestamp.now(),
+        'likes': 0,
+        'likers': []
+      });
     });
     return true;
   }
+
   static String parseDatetime(DateTime dateTime) {
     DateTime now = DateTime.now();
     String time = '';
@@ -130,7 +200,7 @@ class Database {
     }
   }
 
-  bool isConnected(){
+  bool isConnected() {
     return true;
   }
 }

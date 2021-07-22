@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/user.dart';
@@ -22,7 +21,6 @@ class _ThoughtViewState extends State<ThoughtView> {
     super.initState();
     addCommentController = TextEditingController();
     addCommentFocusNode = FocusNode();
-    //FirebaseFirestore.instance.collection('Thoughts').doc(widget.doc.id).collection('Comments').get().then((value) => docs = value);
   }
 
   Widget build(BuildContext context) {
@@ -64,6 +62,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                                                     snapshot.data.docs.length,
                                                 itemBuilder: (context, index) =>
                                                     CommentCard(
+                                                      widget.database,
                                                       widget._user,
                                                       widget.doc,
                                                       snapshot.data.docs[index],
@@ -92,21 +91,18 @@ class _ThoughtViewState extends State<ThoughtView> {
                                 // add comment
                                 String content =
                                     addCommentController.value.text;
-                                FirebaseFirestore.instance
-                                    .runTransaction((transaction) async {
-                                  transaction.set(
-                                      FirebaseFirestore.instance
-                                          .collection('Thoughts')
-                                          .doc(widget.doc.id)
-                                          .collection('Comments')
-                                          .doc(),
-                                      {
-                                        'Author': widget._user.username,
-                                        'date': Timestamp.now(),
-                                        'content': content,
-                                        'likes': 0
-                                      });
-                                }).then((value) {
+
+                                widget.database
+                                    .postElement(
+                                        FirebaseFirestore.instance
+                                            .collection('Thoughts')
+                                            .doc(widget.doc.id)
+                                            .collection('Comments')
+                                            .doc(),
+                                        content,
+                                        widget._user.username,
+                                        false)
+                                    .then((value) {
                                   addCommentController.clear();
                                 });
                                 addCommentFocusNode.unfocus();
@@ -168,10 +164,8 @@ class _ThoughtViewState extends State<ThoughtView> {
                             InkWell(
                                 highlightColor: Colors.transparent,
                                 onTap: () {
-                                  widget.database.updateDoc(
-                                      widget.doc,
-                                      (snapshot) =>
-                                          {'likes': snapshot['likes'] + 1});
+                                  widget.database.likePost(widget.doc.reference,
+                                      widget._user.username);
                                 },
                                 child: Icon(Icons.thumb_up)),
                             VerticalDivider(),

@@ -6,12 +6,14 @@ import 'package:random_thoughts/user.dart';
 import 'database.dart';
 
 class CommentCard extends StatefulWidget {
+  final Database _database;
   final UserInstance _user;
   final DocumentSnapshot parent;
   final DocumentSnapshot doc;
   final DocumentSnapshot ancestor;
   final bool last;
-  CommentCard(this._user,this.parent, this.doc, {this.last = false, this.ancestor});
+  CommentCard(this._database, this._user, this.parent, this.doc,
+      {this.last = false, this.ancestor});
   _CommentCardState createState() => _CommentCardState();
 }
 
@@ -56,19 +58,15 @@ class _CommentCardState extends State<CommentCard> {
                     InkWell(
                         highlightColor: Colors.transparent,
                         onTap: () {
-                          FirebaseFirestore.instance
-                              .runTransaction((transaction) async {
-                            DocumentSnapshot freshSnapshot =
-                                await transaction.get(FirebaseFirestore.instance
-                                    .collection('Thoughts')
-                                    .doc(widget.ancestor.id)
-                                    .collection('Comments')
-                                    .doc(widget.parent.id)
-                                    .collection('Comments')
-                                    .doc(widget.doc.id));
-                            transaction.update(freshSnapshot.reference,
-                                {'likes': freshSnapshot['likes'] + 1});
-                          });
+                          widget._database.likeComment(
+                              FirebaseFirestore.instance
+                                  .collection('Thoughts')
+                                  .doc(widget.ancestor.id)
+                                  .collection('Comments')
+                                  .doc(widget.parent.id)
+                                  .collection('Comments')
+                                  .doc(widget.doc.id),
+                              widget._user.username);
                         },
                         child: Icon(Icons.thumb_up)),
                     VerticalDivider(),
@@ -92,21 +90,13 @@ class _CommentCardState extends State<CommentCard> {
                               InkWell(
                                   highlightColor: Colors.transparent,
                                   onTap: () {
-                                    FirebaseFirestore.instance
-                                        .runTransaction((transaction) async {
-                                      DocumentSnapshot freshSnapshot =
-                                          await transaction.get(
-                                              FirebaseFirestore.instance
-                                                  .collection('Thoughts')
-                                                  .doc(widget.parent.id) // post
-                                                  .collection('Comments')
-                                                  .doc(widget
-                                                      .doc.id)); // comment
-                                      transaction.update(
-                                          freshSnapshot.reference, {
-                                        'likes': freshSnapshot['likes'] + 1
-                                      });
-                                    });
+                                    widget._database.likeComment(
+                                        FirebaseFirestore.instance
+                                            .collection('Thoughts')
+                                            .doc(widget.parent.id)
+                                            .collection('Comments')
+                                            .doc(widget.doc.id),
+                                        widget._user.username);
                                   },
                                   child: Icon(Icons.thumb_up)),
                               Text('${widget.doc['likes']}'),
@@ -138,39 +128,26 @@ class _CommentCardState extends State<CommentCard> {
                                                     String content =
                                                         replyController
                                                             .value.text;
-                                                    FirebaseFirestore.instance
-                                                        .runTransaction(
-                                                            (transaction) async {
-                                                      DocumentSnapshot
-                                                          freshSnapshot =
-                                                          await transaction.get(
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      'Thoughts')
-                                                                  .doc(widget
-                                                                      .parent
-                                                                      .id)
-                                                                  . // post
-                                                                  collection(
-                                                                      'Comments')
-                                                                  .doc(widget
-                                                                      .doc
-                                                                      .id) // comment
-                                                                  .collection(
-                                                                      'Comments')
-                                                                  .doc()); // reply
-                                                      transaction.set(
-                                                          freshSnapshot
-                                                              .reference,
-                                                          {
-                                                            'Author': widget._user.username,
-                                                            'content': content,
-                                                            'date':
-                                                                Timestamp.now(),
-                                                            'likes': 0
-                                                          });
-                                                    });
+                                                    widget._database
+                                                        .postElement(
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'Thoughts')
+                                                                .doc(widget
+                                                                    .parent.id)
+                                                                .collection(
+                                                                    'Comments')
+                                                                .doc(widget
+                                                                    .doc.id)
+                                                                .collection(
+                                                                    'Comments')
+                                                                .doc(),
+                                                            content,
+                                                            widget
+                                                                ._user.username,
+                                                            false);
+
                                                     Navigator.of(context).pop();
                                                     replyController.clear();
                                                   },
@@ -185,7 +162,8 @@ class _CommentCardState extends State<CommentCard> {
                               : List.generate(
                                   snapshot.data.docs.length,
                                   (index) => CommentCard(
-                                    widget._user,
+                                        widget._database,
+                                        widget._user,
                                         widget.doc,
                                         snapshot.data.docs[index],
                                         last: true,
