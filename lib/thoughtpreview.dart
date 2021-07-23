@@ -21,18 +21,25 @@ class _ThoughtViewState extends State<ThoughtView> {
   bool likeLoading = false;
   void initState() {
     super.initState();
-    like = false;
-    likeLoading = false;
     addCommentController = TextEditingController();
     addCommentFocusNode = FocusNode();
     if (widget.doc.get('likers').contains(widget._user.username)) {
       setState(() {
         like = true;
       });
-    }
+    }else setState(() {
+          like = false;
+        });
   }
 
   Widget build(BuildContext context) {
+    if (widget.doc.get('likers').contains(widget._user.username)) {
+      setState(() {
+        like = true;
+      });
+    } else setState(() {
+          like = false;
+        });
     return InkWell(
         onTap: () {
           // show modal sheet
