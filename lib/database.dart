@@ -37,6 +37,19 @@ class Database {
     };
   }
 
+  Future<bool> deletePost(DocumentReference doc) async {
+    bool returnbool = false;
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      try {
+        transaction.delete(doc);
+        returnbool = true;
+      } catch (e) {
+        returnbool = false;
+      }
+    });
+    return returnbool;
+  }
+
   // static updateDocument(DocumentSnapshot doc,Function updater){
   //   FirebaseFirestore.instance.runTransaction((transaction) async {
   //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);

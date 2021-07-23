@@ -17,6 +17,7 @@ class ThoughtView extends StatefulWidget {
 class _ThoughtViewState extends State<ThoughtView> {
   TextEditingController addCommentController;
   FocusNode addCommentFocusNode;
+  bool ownPost = false;
   bool like = false;
   bool likeLoading = false;
   void initState() {
@@ -27,9 +28,18 @@ class _ThoughtViewState extends State<ThoughtView> {
       setState(() {
         like = true;
       });
-    }else setState(() {
-          like = false;
-        });
+    } else
+      setState(() {
+        like = false;
+      });
+    if (widget.doc.get('Author') == widget._user.username) {
+      setState(() {
+        ownPost = true;
+      });
+    } else
+      setState(() {
+        ownPost = false;
+      });
   }
 
   Widget build(BuildContext context) {
@@ -37,9 +47,18 @@ class _ThoughtViewState extends State<ThoughtView> {
       setState(() {
         like = true;
       });
-    } else setState(() {
-          like = false;
-        });
+    } else
+      setState(() {
+        like = false;
+      });
+    if (widget.doc.get('Author') == widget._user.username) {
+      setState(() {
+        ownPost = true;
+      });
+    } else
+      setState(() {
+        ownPost = false;
+      });
     return InkWell(
         onTap: () {
           // show modal sheet
@@ -54,14 +73,14 @@ class _ThoughtViewState extends State<ThoughtView> {
                         Expanded(
                             flex: 2,
                             child: Card(
-                              shadowColor:  Color(0x690FFFF0),
+                                shadowColor: Color(0x690FFFF0),
                                 child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Comments',
-                                textAlign: TextAlign.center,
-                              ),
-                            ))),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Comments',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ))),
                         Expanded(
                             flex: 15,
                             child: StreamBuilder(
@@ -132,7 +151,7 @@ class _ThoughtViewState extends State<ThoughtView> {
         },
         child: Card(
             elevation: 5,
-            shadowColor:  Color(0x690FFFF0),
+            shadowColor: Color(0x690FFFF0),
             child: Container(
                 margin: EdgeInsets.all(5),
                 padding: EdgeInsets.all(10),
@@ -158,15 +177,73 @@ class _ThoughtViewState extends State<ThoughtView> {
                           Database.parseDatetime(widget.doc['date'].toDate())),
                     ),
                     PopupMenuButton(
-                      itemBuilder: (context)=>[
-                        PopupMenuItem(
-                          child: Text('Report post'),
-                        ),
-                        PopupMenuItem(
-                          child: Text('Delete post',style: TextStyle(color: Colors.red),),
-                        )
-                      ]
-                    )
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'delete':
+                              showModalBottomSheet<bool>(
+                                  context: context,
+                                  builder: (context) => Card(
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                            Text(
+                                                'Are you sure you want to delete this post'),
+                                            ButtonBar(children: [
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(true);
+                                                  },
+                                                  child: Text('Yes')),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(false);
+                                                  },
+                                                  child: Text('Cancel'))
+                                            ])
+                                          ]))).then((value) {
+                                if (value != null) if (value) {
+                                  widget.database
+                                      .deletePost(widget.doc.reference)
+                                      .then((value) {
+                                    if (value)
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  Color(0x690FFFF0),
+                                              content: Text(
+                                                  'Your post is deleted')));
+                                    else
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  Color(0x690FFFF0),
+                                              content: Text(
+                                                  'There was an error while deleting your post')));
+                                  });
+                                }
+                              });
+
+                              break;
+                            default:
+                          }
+                        },
+                        itemBuilder: (context) => [
+                              // PopupMenuItem(
+                              //   child: Text('Report post'),
+                              // ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                enabled: ownPost,
+                                child: Text(
+                                  'Delete post',
+                                  style: TextStyle(
+                                      color:
+                                          ownPost ? Colors.red : Colors.grey),
+                                ),
+                              )
+                            ])
                   ]),
                   Divider(),
                   Container(

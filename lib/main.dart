@@ -78,9 +78,7 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
-        theme: ThemeData(
-          primarySwatch: Colors.green
-        ),
+        theme: ThemeData(primarySwatch: Colors.green),
         home: (notLoggedin)
             ? Login(auth, () {
                 setState(() {
@@ -101,7 +99,7 @@ class _HomeState extends State<Home> {
                         context: _scaffoldKey.currentContext,
                         backgroundColor: Colors.transparent,
                         builder: (context) => Card(
-                          shadowColor:  Color(0x690FFFF0),
+                              shadowColor: Color(0x690FFFF0),
                               child: Container(
                                   color: Colors.transparent,
                                   child: Stack(
