@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:random_thoughts/profile.dart';
 import 'package:random_thoughts/thoughtpreview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// UNSOLVED MISTERY
+// import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
 import 'about.dart';
 import 'database.dart';
@@ -26,9 +28,13 @@ class _HomeState extends State<Home> {
   FirebaseAuth auth;
   TextEditingController addThoughtController;
   GlobalKey<ScaffoldState> _scaffoldKey;
+  bool wallpaperFetched = false;
+  Widget wallpaper;
   bool notLoggedin;
+  String sortBy = 'date';
   void initState() {
     super.initState();
+
     auth = FirebaseAuth.instance;
     notLoggedin = true;
     auth.userChanges().listen((event) {
@@ -60,6 +66,10 @@ class _HomeState extends State<Home> {
     Database.getInstance().then((value) => setState(() {
           _database = value;
         }));
+    wallpaper = Image.asset(
+      'assets/images/random_thoughts_logo.jpg',
+      fit: BoxFit.fill,
+    );
   }
 
   String parseDateTime(DateTime dateTime) {
@@ -125,6 +135,7 @@ class _HomeState extends State<Home> {
                                                   .then((value) {
                                                 addThoughtController.clear();
                                                 Navigator.of(context).pop();
+                                                setState(() {});
                                               });
                                             })
                                       ])),
@@ -134,7 +145,7 @@ class _HomeState extends State<Home> {
                 body: (_database == null)
                     ? Center(child: CircularProgressIndicator())
                     : StreamBuilder(
-                        stream: _database.getCollection('Thoughts'),
+                        stream: _database.getCollection('Thoughts', sortBy),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData)
                             return Center(child: CircularProgressIndicator());
@@ -142,6 +153,13 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
+                                  Center(
+                                      child: IconButton(
+                                          onPressed: () {
+                                            // verify email
+                                          },
+                                          icon: Icon(
+                                              Icons.notification_important))),
                                   Center(
                                       child: Text(
                                     _user.username,
@@ -190,8 +208,37 @@ class _HomeState extends State<Home> {
                                           ])
                                 ],
                                 stretch: false,
+                                centerTitle: false,
+                                bottom: AppBar(
+                                  title: ListTile(
+                                    title: Row(
+                                      children: [
+                                        Text('Sort By'),
+                                        VerticalDivider(),
+                                        DropdownButton(
+                                            onChanged: (value) {
+                                              setState(() {
+                                                sortBy = value;
+                                              });
+                                            },
+                                            value: sortBy,
+                                            items: [
+                                              DropdownMenuItem(
+                                                  value: 'date',
+                                                  child: Text('Recent')),
+                                              DropdownMenuItem(
+                                                  value: 'likes',
+                                                  child: Text('Popular'))
+                                            ])
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                pinned: true,
+                                floating: true,
                                 expandedHeight: 150,
                                 flexibleSpace: FlexibleSpaceBar(
+                                  background: wallpaper,
                                   title: Text('Random Thoughts'),
                                 ),
                               ),

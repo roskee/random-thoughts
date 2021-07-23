@@ -6,7 +6,7 @@ import 'package:random_thoughts/user.dart';
 class Profile extends StatefulWidget {
   final UserInstance _user;
   final Database _database;
-  Profile(this._user, this._database) {}
+  Profile(this._user, this._database);
   _ProfileState createState() => _ProfileState();
 }
 

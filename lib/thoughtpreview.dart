@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/user.dart';
@@ -22,6 +21,8 @@ class _ThoughtViewState extends State<ThoughtView> {
   bool likeLoading = false;
   void initState() {
     super.initState();
+    like = false;
+    likeLoading = false;
     addCommentController = TextEditingController();
     addCommentFocusNode = FocusNode();
     if (widget.doc.get('likers').contains(widget._user.username)) {
@@ -187,17 +188,18 @@ class _ThoughtViewState extends State<ThoughtView> {
                                           });
                                 },
                                 child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                  Icon(Icons.thumb_up,
-                                      color:
-                                          (like) ? Colors.blue : Colors.black),
-                                          Visibility(
-                                            visible: likeLoading,
-                                            child:SizedBox(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(Icons.thumb_up,
+                                          color: (like)
+                                              ? Colors.blue
+                                              : Colors.black),
+                                      Visibility(
+                                          visible: likeLoading,
+                                          child: SizedBox(
                                               width: 20,
-                                              child:LinearProgressIndicator()))
-                                ])),
+                                              child: LinearProgressIndicator()))
+                                    ])),
                             VerticalDivider(),
                             Text('${widget.doc['likes']}'),
                           ],

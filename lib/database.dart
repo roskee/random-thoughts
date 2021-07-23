@@ -11,9 +11,12 @@ class Database {
 
   Database._();
 
-  dynamic getCollection(String name) {
+  dynamic getCollection(String name, String sortBy) {
     if (!isConnected()) return false;
-    return FirebaseFirestore.instance.collection(name).snapshots();
+    return FirebaseFirestore.instance
+        .collection(name)
+        .orderBy(sortBy, descending: true)
+        .snapshots();
   }
 
   dynamic getFieldOf(dynamic doc, int index, String fieldName) {
