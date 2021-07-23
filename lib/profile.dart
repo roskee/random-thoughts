@@ -24,6 +24,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) => Material(
         child: Card(
             elevation: 10,
+            shadowColor:  Color(0x690FFFF0),
             child: ListView(
               children: [
                 Image.asset(
@@ -32,6 +33,7 @@ class _ProfileState extends State<Profile> {
                 ), // user image instead
                 Divider(),
                 Card(
+                  shadowColor:  Color(0x690FFFF0),
                     elevation: 10,
                     child: Column(children: [
                       (user == null)
@@ -66,6 +68,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ])),
                 Card(
+                  shadowColor:  Color(0x690FFFF0),
                   elevation: 10,
                   child: Column(
                     children: [

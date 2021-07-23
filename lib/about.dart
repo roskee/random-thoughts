@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class About extends StatelessWidget {
   Widget build(BuildContext context) => Material(
         child: Card(
+          shadowColor:  Color(0x690FFFF0),
           child: ListView(
             children: [
               Image.asset(
@@ -11,6 +12,7 @@ class About extends StatelessWidget {
                 fit: BoxFit.fitWidth,
               ),
               Card(
+                shadowColor:  Color(0x690FFFF0),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,

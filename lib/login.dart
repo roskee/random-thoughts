@@ -29,6 +29,7 @@ class _LoginState extends State<Login> {
 
   Widget build(BuildContext context) => (onSignupComplete)
       ? Card(
+        shadowColor:  Color(0x690FFFF0),
           child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -41,6 +42,7 @@ class _LoginState extends State<Login> {
           ],
         ))
       : Card(
+        shadowColor:  Color(0x690FFFF0),
           child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

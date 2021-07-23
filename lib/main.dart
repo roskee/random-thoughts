@@ -101,6 +101,7 @@ class _HomeState extends State<Home> {
                         context: _scaffoldKey.currentContext,
                         backgroundColor: Colors.transparent,
                         builder: (context) => Card(
+                          shadowColor:  Color(0x690FFFF0),
                               child: Container(
                                   color: Colors.transparent,
                                   child: Stack(

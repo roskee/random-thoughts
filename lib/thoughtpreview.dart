@@ -54,6 +54,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                         Expanded(
                             flex: 2,
                             child: Card(
+                              shadowColor:  Color(0x690FFFF0),
                                 child: Align(
                               alignment: Alignment.center,
                               child: Text(
@@ -90,6 +91,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                         Stack(alignment: Alignment.bottomRight, children: [
                           Card(
                               elevation: 10,
+                              shadowColor: Color(0x690FFFF0),
                               child: Container(
                                   color: Colors.transparent,
                                   child: TextField(
@@ -130,6 +132,7 @@ class _ThoughtViewState extends State<ThoughtView> {
         },
         child: Card(
             elevation: 5,
+            shadowColor:  Color(0x690FFFF0),
             child: Container(
                 margin: EdgeInsets.all(5),
                 padding: EdgeInsets.all(10),
@@ -150,9 +153,19 @@ class _ThoughtViewState extends State<ThoughtView> {
                         )),
                     VerticalDivider(),
                     Expanded(
-                      flex: 5,
+                      flex: 10,
                       child: Text(
                           Database.parseDatetime(widget.doc['date'].toDate())),
+                    ),
+                    PopupMenuButton(
+                      itemBuilder: (context)=>[
+                        PopupMenuItem(
+                          child: Text('Report post'),
+                        ),
+                        PopupMenuItem(
+                          child: Text('Delete post',style: TextStyle(color: Colors.red),),
+                        )
+                      ]
                     )
                   ]),
                   Divider(),

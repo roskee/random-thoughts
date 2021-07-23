@@ -41,19 +41,34 @@ class _CommentCardState extends State<CommentCard> {
 
   Widget build(BuildContext context) => Card(
         elevation: 10,
+        shadowColor:  Color(0x690FFFF0),
         child: Container(
             child: Column(children: [
           Divider(),
           Row(
             children: [
-              Icon(Icons.face),
+              Expanded(
+                flex: 1,
+                child:Icon(Icons.face)),
               VerticalDivider(),
-              InkWell(
+              Expanded(
+                flex: 5,
+                child:InkWell(
                   highlightColor: Colors.transparent,
                   onTap: () {},
-                  child: Text(widget.doc['Author'])),
+                  child: Text(widget.doc['Author']))),
               VerticalDivider(),
-              Text(Database.parseDatetime(widget.doc['date'].toDate()))
+              Expanded(
+                flex: 10,
+                child:Text(Database.parseDatetime(widget.doc['date'].toDate()))),
+              PopupMenuButton(itemBuilder: (context)=>[
+                PopupMenuItem(
+                  child: Text('Report comment'),
+                ),
+                PopupMenuItem(
+                  child: Text('Delete comment',style: TextStyle(color: Colors.red),)
+                )
+              ])
             ],
           ),
           Divider(),
@@ -172,6 +187,7 @@ class _CommentCardState extends State<CommentCard> {
                                   showModalBottomSheet(
                                       context: context,
                                       builder: (context) => Card(
+                                        shadowColor:  Color(0x690FFFF0),
                                               child: Stack(
                                                   alignment:
                                                       Alignment.bottomRight,
