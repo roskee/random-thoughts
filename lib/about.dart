@@ -7,7 +7,7 @@ class About extends StatelessWidget {
           child: ListView(
             children: [
               Image.asset(
-                'assets/images/random_thoughts_logo.jpg',
+                'assets/images/random_thoughts_logo3.png',
                 fit: BoxFit.fitWidth,
               ),
               Card(

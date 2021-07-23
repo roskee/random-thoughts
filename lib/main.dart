@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
           _database = value;
         }));
     wallpaper = Image.asset(
-      'assets/images/random_thoughts_logo.jpg',
+      'assets/images/random_thoughts_logo3.png',
       fit: BoxFit.fill,
     );
   }
@@ -78,6 +78,9 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) => MaterialApp(
         title: 'Random Thoughts',
+        theme: ThemeData(
+          primarySwatch: Colors.green
+        ),
         home: (notLoggedin)
             ? Login(auth, () {
                 setState(() {
@@ -153,63 +156,77 @@ class _HomeState extends State<Home> {
                             slivers: [
                               SliverAppBar(
                                 actions: [
-                                  Center(
-                                      child: IconButton(
-                                          onPressed: () {
-                                            // verify email
-                                          },
-                                          icon: Icon(
-                                              Icons.notification_important))),
-                                  Center(
-                                      child: Text(
-                                    _user.username,
-                                    style: TextStyle(fontSize: 18),
-                                  )),
-                                  PopupMenuButton(
-                                      onSelected: (value) {
-                                        switch (value) {
-                                          case 'settings':
-                                            Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Profile(
-                                                            _user, _database)));
-                                            break;
-                                          case 'signout':
-                                            auth.signOut().then((value) => {
-                                                  setState(() {
-                                                    notLoggedin = true;
-                                                    _user.signout(auth, () {
-                                                      notLoggedin = true;
-                                                    });
-                                                  })
-                                                });
-                                            break;
-                                          case 'about':
-                                            Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        About()));
-                                            break;
-                                        }
-                                      },
-                                      icon: Icon(Icons.face),
-                                      itemBuilder: (context) => [
-                                            PopupMenuItem(
-                                              value: 'settings',
-                                              child: Text('Settings'),
-                                            ),
-                                            PopupMenuItem(
-                                                value: 'signout',
-                                                child: Text('Sign out')),
-                                            PopupMenuItem(
-                                                value: 'about',
-                                                child: Text('About'))
-                                          ])
+                                  Card(
+                                      elevation: 10,
+                                      color: Color(0x690FFFF0),
+                                      child: Row(children: [
+                                        Center(
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  // verify email
+                                                },
+                                                icon: Icon(Icons
+                                                    .notification_important))),
+                                        Center(
+                                            child: Text(
+                                          _user.username,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        )),
+                                        PopupMenuButton(
+                                            onSelected: (value) {
+                                              switch (value) {
+                                                case 'settings':
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Profile(_user,
+                                                                  _database)));
+                                                  break;
+                                                case 'signout':
+                                                  auth
+                                                      .signOut()
+                                                      .then((value) => {
+                                                            setState(() {
+                                                              notLoggedin =
+                                                                  true;
+                                                              _user.signout(
+                                                                  auth, () {
+                                                                notLoggedin =
+                                                                    true;
+                                                              });
+                                                            })
+                                                          });
+                                                  break;
+                                                case 'about':
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              About()));
+                                                  break;
+                                              }
+                                            },
+                                            icon: Icon(Icons.face),
+                                            itemBuilder: (context) => [
+                                                  PopupMenuItem(
+                                                    value: 'settings',
+                                                    child: Text('Settings'),
+                                                  ),
+                                                  PopupMenuItem(
+                                                      value: 'signout',
+                                                      child: Text('Sign out')),
+                                                  PopupMenuItem(
+                                                      value: 'about',
+                                                      child: Text('About'))
+                                                ])
+                                      ]))
                                 ],
                                 stretch: false,
                                 centerTitle: false,
                                 bottom: AppBar(
+                                  elevation: 10,
+                                  backgroundColor: Color(0x6909FFF0),
                                   title: ListTile(
                                     title: Row(
                                       children: [
@@ -239,7 +256,6 @@ class _HomeState extends State<Home> {
                                 expandedHeight: 150,
                                 flexibleSpace: FlexibleSpaceBar(
                                   background: wallpaper,
-                                  title: Text('Random Thoughts'),
                                 ),
                               ),
                               (snapshot.data.docs.length == 0)

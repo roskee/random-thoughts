@@ -27,7 +27,7 @@ class _ProfileState extends State<Profile> {
             child: ListView(
               children: [
                 Image.asset(
-                  'assets/images/random_thoughts_logo.jpg',
+                  'assets/images/random_thoughts_logo3.png',
                   fit: BoxFit.fitWidth,
                 ), // user image instead
                 Divider(),

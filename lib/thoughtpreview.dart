@@ -192,7 +192,7 @@ class _ThoughtViewState extends State<ThoughtView> {
                                     children: [
                                       Icon(Icons.thumb_up,
                                           color: (like)
-                                              ? Colors.blue
+                                              ? Colors.green
                                               : Colors.black),
                                       Visibility(
                                           visible: likeLoading,

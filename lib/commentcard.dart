@@ -95,7 +95,7 @@ class _CommentCardState extends State<CommentCard> {
                         child: Stack(alignment: Alignment.center, children: [
                           Icon(
                             Icons.thumb_up,
-                            color: (replyLike) ? Colors.blue : Colors.black,
+                            color: (replyLike) ? Colors.green : Colors.black,
                           ),
                           Visibility(
                               visible: replyLikeLoading,
@@ -150,7 +150,7 @@ class _CommentCardState extends State<CommentCard> {
                                         Icon(
                                           Icons.thumb_up,
                                           color: (commentLike)
-                                              ? Colors.blue
+                                              ? Colors.green
                                               : Colors.black,
                                         ),
                                         Visibility(
