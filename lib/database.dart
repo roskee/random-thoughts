@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Database {
   static Database _database;
@@ -49,7 +50,9 @@ class Database {
     });
     return returnbool;
   }
-
+  Future<bool> deleteAccount(String username,String password){
+    
+  }
   Future<bool> updateProfile(
       String firstName, String lastName, String userName) async {
     bool returnbool = false;

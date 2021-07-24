@@ -14,6 +14,12 @@ class _ProfileState extends State<Profile> {
   Map<String, dynamic> user;
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
+  TextEditingController oldPasswordController = TextEditingController();
+  TextEditingController newPasswordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  GlobalKey<FormState> nameForm=GlobalKey<FormState>();
+  GlobalKey<FormState> passwordForm=GlobalKey<FormState>();
+  
   void initState() {
     super.initState();
     widget._database
@@ -82,14 +88,20 @@ class _ProfileState extends State<Profile> {
                         title: Text('Update Profile'),
                         onTap: () {
                           showModalBottomSheet(
+                            isScrollControlled: true,
                               context: context,
                               builder: (context) => Card(
                                     child: Column(
                                       children: [
+                                        Form(
+                                          key: nameForm,
+                                          child:Column(
+                                            children:[
                                         Divider(),
                                         SizedBox(
                                             width: 250,
-                                            child: TextField(
+                                            child: TextFormField(
+                                              validator: (value)=>value.isEmpty?'Your first name is required':null,
                                               maxLines: 1,
                                               controller: firstNameController,
                                               decoration: InputDecoration(
@@ -97,7 +109,8 @@ class _ProfileState extends State<Profile> {
                                             )),
                                         SizedBox(
                                           width: 250,
-                                          child: TextField(
+                                          child: TextFormField(
+                                            validator: (value)=>value.isEmpty?'Your last name is required':null,
                                             controller: lastNameController,
                                             maxLines: 1,
                                             decoration: InputDecoration(
@@ -107,6 +120,7 @@ class _ProfileState extends State<Profile> {
                                         Divider(),
                                         ElevatedButton(
                                             onPressed: () {
+                                              if(nameForm.currentState.validate())
                                               widget._database
                                                   .updateProfile(
                                                       firstNameController
@@ -138,6 +152,50 @@ class _ProfileState extends State<Profile> {
                                               });
                                             },
                                             child: Text('Update profile'))
+                                            ])),
+                                            Divider(thickness: 3,),
+                                            Form(
+                                              key:passwordForm,
+                                              child:Column(
+                                                children:[                                            SizedBox(
+                                              width: 250,
+                                              child: TextFormField(
+                                                controller: oldPasswordController,
+                                                validator: (value)=>value.isEmpty?'Your old password is required!':null,
+                                                maxLines: 1,
+                                                decoration: InputDecoration(
+                                                  hintText: 'Old password'
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 250,
+                                              child: TextFormField(
+                                                controller: newPasswordController,
+                                                validator: (value)=>value.isEmpty?'Please enter your new password':null,
+                                                maxLines: 1,
+                                                decoration: InputDecoration(
+                                                  hintText: 'New password'
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 250,
+                                              child: TextFormField(
+                                                controller: confirmPasswordController,
+                                                validator: (value)=>(value.isEmpty)?'Please reenter your new password':(value!=newPasswordController.value.text)?'Your password don\'t match':null,
+                                                maxLines: 1,
+                                                decoration: InputDecoration(
+                                                  hintText: 'Confirm password'
+                                                ),
+                                              ),
+                                            ),
+                                            ElevatedButton(onPressed: (){
+                                              if(passwordForm.currentState.validate()){
+                                                // update password
+                                              }
+                                            }, child: Text('Update Password'))
+                                                ]))
                                       ],
                                     ),
                                   ));
