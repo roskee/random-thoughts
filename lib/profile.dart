@@ -12,6 +12,8 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   Map<String, dynamic> user;
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
   void initState() {
     super.initState();
     widget._database
@@ -24,7 +26,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) => Material(
         child: Card(
             elevation: 10,
-            shadowColor:  Color(0x690FFFF0),
+            shadowColor: Color(0x690FFFF0),
             child: ListView(
               children: [
                 Image.asset(
@@ -33,7 +35,7 @@ class _ProfileState extends State<Profile> {
                 ), // user image instead
                 Divider(),
                 Card(
-                  shadowColor:  Color(0x690FFFF0),
+                    shadowColor: Color(0x690FFFF0),
                     elevation: 10,
                     child: Column(children: [
                       (user == null)
@@ -68,7 +70,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ])),
                 Card(
-                  shadowColor:  Color(0x690FFFF0),
+                  shadowColor: Color(0x690FFFF0),
                   elevation: 10,
                   child: Column(
                     children: [
@@ -78,7 +80,68 @@ class _ProfileState extends State<Profile> {
                       ),
                       ListTile(
                         title: Text('Update Profile'),
-                        onTap: () {},
+                        onTap: () {
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (context) => Card(
+                                    child: Column(
+                                      children: [
+                                        Divider(),
+                                        SizedBox(
+                                            width: 250,
+                                            child: TextField(
+                                              maxLines: 1,
+                                              controller: firstNameController,
+                                              decoration: InputDecoration(
+                                                  hintText: 'First name'),
+                                            )),
+                                        SizedBox(
+                                          width: 250,
+                                          child: TextField(
+                                            controller: lastNameController,
+                                            maxLines: 1,
+                                            decoration: InputDecoration(
+                                                hintText: 'Last name'),
+                                          ),
+                                        ),
+                                        Divider(),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              widget._database
+                                                  .updateProfile(
+                                                      firstNameController
+                                                          .value.text,
+                                                      lastNameController
+                                                          .value.text,
+                                                      widget._user.username)
+                                                  .then((value) {
+                                                if (value)
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                        content: Text(
+                                                            'Your account is updated successfully')),
+                                                  );
+                                                else
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'There was a problem while updating your account')));
+                                                Navigator.of(context).pop();
+                                                widget._database
+                                                    .getCurrentUser(
+                                                        widget._user.username)
+                                                    .then(
+                                                        (value) => setState(() {
+                                                              user = value;
+                                                            }));
+                                              });
+                                            },
+                                            child: Text('Update profile'))
+                                      ],
+                                    ),
+                                  ));
+                        },
                       ),
                       ListTile(
                         title: Text(

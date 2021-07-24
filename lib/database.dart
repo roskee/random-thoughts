@@ -50,6 +50,21 @@ class Database {
     return returnbool;
   }
 
+  Future<bool> updateProfile(
+      String firstName, String lastName, String userName) async {
+    bool returnbool = false;
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      try {
+        transaction.update(
+            FirebaseFirestore.instance.collection('Users').doc(userName),
+            {'firstname': firstName, 'lastname': lastName});
+      } catch (e) {
+        returnbool = false;
+      }
+    });
+    return returnbool;
+  }
+
   // static updateDocument(DocumentSnapshot doc,Function updater){
   //   FirebaseFirestore.instance.runTransaction((transaction) async {
   //     DocumentSnapshot freshSnapshot = await transaction.get(doc.reference);
