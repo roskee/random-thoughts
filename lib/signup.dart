@@ -35,21 +35,33 @@ class _SignupState extends State<Signup> {
 
   Widget build(BuildContext context) {
     return Material(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: ListView(
+       // mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            'Register for Random Thoughts',
-            style: TextStyle(fontSize: 24),
-          ),
-          Divider(),
-          Container(
-              width: 250,
+          Card(
+                elevation: 10,
+                shadowColor: Color(0x690FFFF0),
+                child: Image.asset('assets/images/random_thoughts_logo3.png'),
+              ),
+          Card(
+            elevation: 10,
+            shadowColor: Color(0x690FFFF0),
+            child:SizedBox(
+              height: 50,
+              child:Center(child:Text(
+            'Create New Account',
+            style: TextStyle(fontSize: 24),)
+          ))),
+          Card(
+            elevation: 10,
+            shadowColor: Color(0x690FFFF0),
               child: Form(
                   key: _formFieldKey,
                   child: Column(children: [
                     Stack(alignment: Alignment.centerRight, children: [
-                      TextFormField(
+                      SizedBox(
+                        width: 250,
+                        child:TextFormField(
                           maxLength: 10,
                           onChanged: (value) {
                             if (value.isEmpty) {
@@ -81,10 +93,12 @@ class _SignupState extends State<Signup> {
                               ? "This field is required"
                               : (value.contains(' '))
                                   ? "No spaces are allowed"
-                                  : null),
-                      usernameChecked
+                                  : null)),
+                        usernameChecked
                     ]),
-                    TextFormField(
+                    SizedBox(
+                      width:250,
+                      child:TextFormField(
                       controller: _firstNameController,
                       decoration: InputDecoration(hintText: 'First name'),
                       validator: (value) => (value.isEmpty)
@@ -92,8 +106,10 @@ class _SignupState extends State<Signup> {
                           : (value.contains(' '))
                               ? "No Spaces are allowed"
                               : null,
-                    ),
-                    TextFormField(
+                    )),
+                    SizedBox(
+                      width:250,
+                      child:TextFormField(
                       controller: _lastNameController,
                       decoration: InputDecoration(hintText: 'Last name'),
                       validator: (value) => (value.isEmpty)
@@ -101,14 +117,18 @@ class _SignupState extends State<Signup> {
                           : (value.contains(' '))
                               ? "No Spaces are allowed"
                               : null,
-                    ),
-                    TextFormField(
+                    )),
+                    SizedBox(
+                      width:250,
+                      child:TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(hintText: 'Email'),
                       validator: (value) =>
                           (value.isEmpty) ? "This field is required" : null,
-                    ),
-                    TextFormField(
+                    )),
+                    SizedBox(
+                      width: 250,
+                      child:TextFormField(
                       controller: _passwordFieldController,
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: true,
@@ -118,8 +138,10 @@ class _SignupState extends State<Signup> {
                           : (value.length < 6)
                               ? "Your password must be 6 digits or more!"
                               : null,
-                    ),
-                    TextFormField(
+                    )),
+                    SizedBox(
+                      width:250,
+                      child:TextFormField(
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: true,
                       decoration: InputDecoration(hintText: 'Confirm password'),
@@ -127,10 +149,10 @@ class _SignupState extends State<Signup> {
                           (value != _passwordFieldController.value.text)
                               ? "Password doesn\'t match!"
                               : null,
-                    ),
-                  ]))),
-          Divider(),
-          Visibility(visible: signupError, child: signupErrorMessage),
+                    )),
+                    Divider(),
+                     //Visibility(visible: signupError, child: 
+                     signupError?signupErrorMessage:Text(''),
           ElevatedButton(
               onPressed: () {
                 if (signupErrorMessage is LinearProgressIndicator) return;
@@ -154,6 +176,9 @@ class _SignupState extends State<Signup> {
                 }
               },
               child: Text('Register'))
+                  ]))),
+         
+         
         ],
       ),
     );
