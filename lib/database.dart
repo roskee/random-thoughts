@@ -50,9 +50,77 @@ class Database {
     });
     return returnbool;
   }
-  Future<bool> deleteAccount(String username,String password){
-    
+
+  Future<String> deleteAccount(String username, String password) async {
+    String error;
+    try {
+      await FirebaseAuth.instance.currentUser
+          .reauthenticateWithCredential(EmailAuthProvider.credential(
+              email: FirebaseAuth.instance.currentUser.email,
+              password: password))
+          .then((value) async {
+        try {
+          await FirebaseAuth.instance.currentUser.delete();
+        } on FirebaseAuthException {
+          error = 'Please sign in again to delete your account!';
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-mismatch':
+        case 'user-not-found':
+        case 'invalid-credential':
+        case 'invalid-email':
+          error = 'Error while requesting for user credentials';
+          break;
+        case 'wrong-password':
+          error = 'The password is incorrect';
+          break;
+        default:
+          error = 'Unknown Error has occured!';
+      }
+    }
+    return error;
   }
+
+  Future<String> updatePassword(String newPassword, String oldPassword) async {
+    String error;
+    try {
+      await FirebaseAuth.instance.currentUser
+          .reauthenticateWithCredential(EmailAuthProvider.credential(
+              email: FirebaseAuth.instance.currentUser.email,
+              password: oldPassword))
+          .then((value) {
+        try {
+          FirebaseAuth.instance.currentUser.updatePassword(newPassword);
+        } on FirebaseAuthException catch (e) {
+          switch (e.code) {
+            case 'weak-password':
+              error = 'Your password is very weak!';
+              break;
+            default:
+              error = 'Please sign in again to update your password';
+          }
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-mismatch':
+        case 'user-not-found':
+        case 'invalid-credential':
+        case 'invalid-email':
+          error = 'Error while requesting for user credentials';
+          break;
+        case 'wrong-password':
+          error = 'Old password is incorrect';
+          break;
+        default:
+          error = 'Unknown Error has occured!';
+      }
+    }
+    return error;
+  }
+
   Future<bool> updateProfile(
       String firstName, String lastName, String userName) async {
     bool returnbool = false;
@@ -61,6 +129,7 @@ class Database {
         transaction.update(
             FirebaseFirestore.instance.collection('Users').doc(userName),
             {'firstname': firstName, 'lastname': lastName});
+        returnbool = true;
       } catch (e) {
         returnbool = false;
       }
