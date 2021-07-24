@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_thoughts/database.dart';
@@ -13,6 +14,8 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   Map<String, dynamic> user;
+  TextEditingController checkPasswordForDeletionController =
+      TextEditingController();
 
   void initState() {
     super.initState();
@@ -95,7 +98,70 @@ class _ProfileState extends State<Profile> {
                           'Delete Account',
                           style: TextStyle(color: Colors.red),
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          showModalBottomSheet<bool>(
+                              context: context,
+                              builder: (context) => Card(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Are you sure you want to delete your account with all your activity history?',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                        TextField(
+                                          obscureText: true,
+                                          maxLines: 1,
+                                          controller:
+                                              checkPasswordForDeletionController,
+                                          decoration: InputDecoration(
+                                              hintText: 'Input password'),
+                                        ),
+                                        ButtonBar(
+                                          children: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(true);
+                                                },
+                                                child: Text(
+                                                  'Yes',
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                )),
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(false);
+                                                },
+                                                child: Text('Cancel'))
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  )).then((value) {
+                            if (value != null) if (value) {
+                              widget._database
+                                  .deleteAccount(
+                                      widget._user.username,
+                                      checkPasswordForDeletionController
+                                          .value.text)
+                                  .then((value) {
+                                if (value == null) {
+                                  widget._user.signout(FirebaseAuth.instance,
+                                      () {
+                                    Navigator.of(context)
+                                        .popUntil((route) => route.isFirst);
+                                    Navigator.of(context).setState(() {});
+                                  });
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(value)));
+                                }
+                              });
+                            }
+                          });
+                        },
                       )
                     ],
                   ),

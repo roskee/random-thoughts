@@ -25,7 +25,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Text updateProfileError = Text('');
   bool updatePasswordLoading = false;
   Text updatePasswordError = Text('');
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => Material(
+          child: Card(
         elevation: 10,
         shadowColor: Color(0x690FFFF0),
         child: ListView(
@@ -120,6 +121,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          obscureText: true,
                           controller: oldPasswordController,
                           validator: (value) => value.isEmpty
                               ? 'Your old password is required!'
@@ -131,6 +133,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          obscureText: true,
                           controller: newPasswordController,
                           validator: (value) => value.isEmpty
                               ? 'Please enter your new password'
@@ -144,6 +147,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          obscureText: true,
                           controller: confirmPasswordController,
                           validator: (value) => (value.isEmpty)
                               ? 'Please reenter your new password'
@@ -192,5 +196,5 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     ])))
           ],
         ),
-      );
+      ));
 }

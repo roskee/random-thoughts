@@ -89,7 +89,7 @@ class _CommentCardState extends State<CommentCard> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                     Text(
-                                        'Are you sure you want to delete this post'),
+                                        'Are you sure you want to delete this comment'),
                                     ButtonBar(children: [
                                       TextButton(
                                           onPressed: () {
