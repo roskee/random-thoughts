@@ -77,7 +77,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       ElevatedButton(
                           onPressed: () {
                             if (nameForm.currentState.validate()) {
-                              print('updating');
                               setState(() {
                                 updateProfileLoading = true;
                               });

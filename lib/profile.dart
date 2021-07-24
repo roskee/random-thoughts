@@ -16,6 +16,7 @@ class _ProfileState extends State<Profile> {
   Map<String, dynamic> user;
   TextEditingController checkPasswordForDeletionController =
       TextEditingController();
+  bool ignorePointer = false;
 
   void initState() {
     super.initState();
@@ -26,7 +27,9 @@ class _ProfileState extends State<Profile> {
             }));
   }
 
-  Widget build(BuildContext context) => Material(
+  Widget build(BuildContext context) => AbsorbPointer(
+      absorbing: ignorePointer,
+      child: Material(
         child: Card(
             elevation: 10,
             shadowColor: Color(0x690FFFF0),
@@ -141,6 +144,9 @@ class _ProfileState extends State<Profile> {
                                     ),
                                   )).then((value) {
                             if (value != null) if (value) {
+                              setState(() {
+                                ignorePointer = true;
+                              });
                               widget._database
                                   .deleteAccount(
                                       widget._user.username,
@@ -155,6 +161,9 @@ class _ProfileState extends State<Profile> {
                                     Navigator.of(context).setState(() {});
                                   });
                                 } else {
+                                  setState(() {
+                                    ignorePointer = false;
+                                  });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text(value)));
                                 }
@@ -168,5 +177,5 @@ class _ProfileState extends State<Profile> {
                 )
               ],
             )),
-      );
+      ));
 }

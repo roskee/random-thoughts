@@ -34,7 +34,6 @@ class _HomeState extends State<Home> {
   String sortBy = 'date';
   void initState() {
     super.initState();
-
     auth = FirebaseAuth.instance;
     notLoggedin = true;
     auth.userChanges().listen((event) {
@@ -42,24 +41,27 @@ class _HomeState extends State<Home> {
         setState(() {
           notLoggedin = true;
         });
-      } else
+      } else {
         setState(() {
           notLoggedin = false;
+          _user = UserInstance.getInstance(FirebaseAuth.instance);
         });
+      }
     });
-    if (auth.currentUser != null)
-      auth.currentUser.reload().then((value) => {
-            if (auth.currentUser == null)
-              _user.signout(auth, () {
-                setState(() {
-                  notLoggedin = true;
-                });
-              })
-            else
-              setState(() {
-                notLoggedin = false;
-              })
-          });
+    // if (auth.currentUser != null)
+    //   auth.currentUser.reload().then((value) => {
+    //         if (auth.currentUser == null)
+    //           _user.signout(auth, () {
+    //             setState(() {
+    //               notLoggedin = true;
+    //             });
+    //           })
+    //         else
+    //           setState(() {
+    //             notLoggedin = false;
+    //             _user = UserInstance.getInstance(FirebaseAuth.instance);
+    //           })
+    //       });
     _scaffoldKey = GlobalKey<ScaffoldState>();
     addThoughtController = TextEditingController();
     _user = UserInstance.getInstance(auth);

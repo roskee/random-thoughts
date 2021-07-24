@@ -40,14 +40,12 @@ class Database {
 
   Future<bool> deletePost(DocumentReference doc) async {
     bool returnbool = false;
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      try {
-        transaction.delete(doc);
-        returnbool = true;
-      } catch (e) {
-        returnbool = false;
-      }
-    });
+    try {
+      await doc.delete();
+      returnbool = true;
+    } catch (e) {
+      returnbool = false;
+    }
     return returnbool;
   }
 
@@ -60,6 +58,10 @@ class Database {
               password: password))
           .then((value) async {
         try {
+          if (!await _deleteDataOf(username)) {
+            error = 'Couldn\'t delete account data';
+            return;
+          }
           await FirebaseAuth.instance.currentUser.delete();
         } on FirebaseAuthException {
           error = 'Please sign in again to delete your account!';
@@ -81,6 +83,54 @@ class Database {
       }
     }
     return error;
+  }
+
+  Future<bool> _deleteDataOf(String username) async {
+    bool returnbool = false;
+    // delete all posts by $username
+    try {
+      QuerySnapshot posts =
+          await FirebaseFirestore.instance.collection('Thoughts').get();
+      posts.docs.forEach((thought) async {
+        if (thought.get('Author') == username)
+          await thought.reference.delete();
+        else {
+          // delete comments in this post
+          QuerySnapshot comments = await FirebaseFirestore.instance
+              .collection('Thoughts')
+              .doc(thought.id)
+              .collection('Comments')
+              .get();
+          comments.docs.forEach((comment) async {
+            if (comment.get('Author') == username)
+              comment.reference.delete();
+            else {
+              // delete replies in this comment
+              QuerySnapshot replies = await FirebaseFirestore.instance
+                  .collection('Thoughts')
+                  .doc(thought.id)
+                  .collection('Comments')
+                  .doc(comment.id)
+                  .collection('Comments')
+                  .get();
+              replies.docs.forEach((reply) {
+                if (reply.get('Author') == username) reply.reference.delete();
+              });
+            }
+          });
+        }
+      });
+      // delete user document of $username
+
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(username)
+          .delete();
+      returnbool = true;
+    } catch (e) {
+      return false;
+    }
+    return returnbool;
   }
 
   Future<String> updatePassword(String newPassword, String oldPassword) async {

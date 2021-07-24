@@ -85,7 +85,7 @@ class _LoginState extends State<Login> {
                                         ? "Your password is 6 digits or more!"
                                         : null,
                               )),
-                              Divider(),
+                          Divider(),
                           Visibility(
                               visible: loginError, child: loginErrorMessage),
                           ElevatedButton(
@@ -146,9 +146,7 @@ class _LoginState extends State<Login> {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
                                         Signup(widget.auth, () {
-                                          setState(() {
-                                            onSignupComplete = true;
-                                          });
+                                          widget.onLoginCallback();
                                         })));
                               },
                               child: Text('I don\'t have an account'))
