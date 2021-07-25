@@ -17,7 +17,6 @@ class _ProfileState extends State<Profile> {
   TextEditingController checkPasswordForDeletionController =
       TextEditingController();
   bool ignorePointer = false;
-
   void initState() {
     super.initState();
     widget._database
@@ -25,6 +24,20 @@ class _ProfileState extends State<Profile> {
         .then((value) => setState(() {
               user = value;
             }));
+  }
+
+  String parsePopularity(double popularity) {
+    return (popularity == 0.01)
+        ? 'Celebrity'
+        : (popularity == 0.1)
+            ? 'Famous'
+            : (popularity == 0.3)
+                ? 'Well Known'
+                : (popularity == 0.5)
+                    ? 'Casual'
+                    : (popularity == 0.9)
+                        ? 'Observer'
+                        : 'Sleepy';
   }
 
   Widget build(BuildContext context) => AbsorbPointer(
@@ -67,13 +80,15 @@ class _ProfileState extends State<Profile> {
                                 width: 30, child: LinearProgressIndicator())
                             : Text('${user['postcount']}'),
                       ),
-                      ListTile(
-                        title: Text('Popularity'),
-                        subtitle: LinearProgressIndicator(
-                          value: 0.2,
-                        ),
-                        trailing: Text('20%'),
-                      ),
+                      (user == null)
+                          ? LinearProgressIndicator()
+                          : ListTile(
+                              title: Text('Popularity'),
+                              subtitle: LinearProgressIndicator(
+                                  value: 1 - user['popularity']),
+                              trailing:
+                                  Text(parsePopularity(user['popularity'])),
+                            ),
                     ])),
                 Card(
                   shadowColor: Color(0x690FFFF0),

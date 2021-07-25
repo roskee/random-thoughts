@@ -29,12 +29,14 @@ class Database {
         .collection('Users')
         .doc(username)
         .get();
+    double popularity = await _getPopulariy(username);
     return {
       'firstname': user['firstname'],
       'lastname': user['lastname'],
       'postcount': user['postcount'],
       'likecount': user['likecount'],
-      'username': user['username']
+      'username': user['username'],
+      'popularity': popularity
     };
   }
 
@@ -193,6 +195,34 @@ class Database {
   //     transaction.update(freshSnapshot.reference, updater(freshSnapshot));
   //   });
   // }
+  Future<double> _getPopulariy(String username) async {
+    QuerySnapshot users =
+        await FirebaseFirestore.instance.collection('Users').get();
+    DocumentSnapshot user = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(username)
+        .get();
+    double usersCount = users.docs.length + 1.0;
+    double rank = 1;
+    users.docs.forEach((element) {
+      if (element.id != user.id) if (element.get('likecount') >
+          user.get('likecount')) rank++;
+    });
+    print('users: $usersCount, rank: $rank');
+    if (rank < usersCount / 100 * 1)
+      return 0.01;
+    else if (rank / usersCount <= usersCount / 100 * 10)
+      return 0.1;
+    else if (rank / usersCount <= usersCount / 100 * 30)
+      return 0.3;
+    else if (rank / usersCount <= usersCount / 100 * 50)
+      return 0.5;
+    else if (rank / usersCount <= usersCount / 100 * 90)
+      return 0.9;
+    else
+      return 1;
+  }
+
   Future<bool> likeComment(DocumentReference doc, String username) async {
     bool returnbool = false;
     await FirebaseFirestore.instance.runTransaction((transaction) async {
