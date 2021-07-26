@@ -64,6 +64,7 @@ class _LoginState extends State<Login> {
                               width: 250,
                               child: TextFormField(
                                 controller: emailController,
+                                textInputAction: TextInputAction.next,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
                                   hintText: 'Email',
@@ -76,6 +77,58 @@ class _LoginState extends State<Login> {
                               width: 250,
                               child: TextFormField(
                                 controller: passwordController,
+                                textInputAction: TextInputAction.done,
+                                onEditingComplete: () async {
+                                  if (_loginForm.currentState.validate()) {
+                                    if (loginErrorMessage
+                                        is LinearProgressIndicator) return;
+                                    try {
+                                      setState(() {
+                                        loginErrorMessage =
+                                            LinearProgressIndicator();
+                                        loginError = true;
+                                      });
+                                      await widget.auth
+                                          .signInWithEmailAndPassword(
+                                              email: emailController.value.text,
+                                              password: passwordController
+                                                  .value.text);
+                                      widget.onLoginCallback();
+                                    } catch (e) {
+                                      String errorMessage;
+                                      switch (e.code) {
+                                        case 'user-not-found':
+                                          errorMessage =
+                                              'There is no account with this email';
+                                          break;
+                                        case 'invalid-email':
+                                          errorMessage =
+                                              'You have entered an invalid email';
+                                          break;
+                                        case 'user-disabled':
+                                          errorMessage =
+                                              'The account you tried to login to is currently disabled. contact administrators';
+                                          break;
+                                        case 'wrong-password':
+                                          errorMessage =
+                                              "The password is incorrect";
+                                          break;
+                                        default:
+                                          errorMessage =
+                                              'Unknown Error has occured';
+                                      }
+                                      setState(() {
+                                        loginError = true;
+                                        loginErrorMessage = Text(
+                                          errorMessage,
+                                          style: TextStyle(color: Colors.red),
+                                        );
+                                      });
+                                    }
+                                    // auth.signIn
+                                    // call callback
+                                  }
+                                },
                                 obscureText: true,
                                 decoration:
                                     InputDecoration(hintText: 'Password'),

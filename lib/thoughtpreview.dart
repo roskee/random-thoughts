@@ -115,6 +115,26 @@ class _ThoughtViewState extends State<ThoughtView> {
                               child: Container(
                                   color: Colors.transparent,
                                   child: TextField(
+                                    textInputAction: TextInputAction.done,
+                                    onEditingComplete: () {
+                                      String content =
+                                          addCommentController.value.text;
+
+                                      widget.database
+                                          .postElement(
+                                              FirebaseFirestore.instance
+                                                  .collection('Thoughts')
+                                                  .doc(widget.doc.id)
+                                                  .collection('Comments')
+                                                  .doc(),
+                                              content,
+                                              widget._user.username,
+                                              false)
+                                          .then((value) {
+                                        addCommentController.clear();
+                                      });
+                                      addCommentFocusNode.unfocus();
+                                    },
                                     controller: addCommentController,
                                     focusNode: addCommentFocusNode,
                                     decoration: InputDecoration(

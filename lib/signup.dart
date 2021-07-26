@@ -35,8 +35,8 @@ class _SignupState extends State<Signup> {
   }
 
   Widget build(BuildContext context) {
-    return Material(
-      child: isRegistering
+    return Scaffold(
+      body: isRegistering
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -95,6 +95,7 @@ class _SignupState extends State<Signup> {
                                           });
                                       });
                                     },
+                                    textInputAction: TextInputAction.next,
                                     controller: _usernameController,
                                     decoration:
                                         InputDecoration(hintText: 'Username'),
@@ -108,6 +109,7 @@ class _SignupState extends State<Signup> {
                           SizedBox(
                               width: 250,
                               child: TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: _firstNameController,
                                 decoration:
                                     InputDecoration(hintText: 'First name'),
@@ -120,6 +122,7 @@ class _SignupState extends State<Signup> {
                           SizedBox(
                               width: 250,
                               child: TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: _lastNameController,
                                 decoration:
                                     InputDecoration(hintText: 'Last name'),
@@ -132,7 +135,9 @@ class _SignupState extends State<Signup> {
                           SizedBox(
                               width: 250,
                               child: TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(hintText: 'Email'),
                                 validator: (value) => (value.isEmpty)
                                     ? "This field is required"
@@ -141,6 +146,7 @@ class _SignupState extends State<Signup> {
                           SizedBox(
                               width: 250,
                               child: TextFormField(
+                                textInputAction: TextInputAction.next,
                                 controller: _passwordFieldController,
                                 keyboardType: TextInputType.visiblePassword,
                                 obscureText: true,
@@ -155,6 +161,32 @@ class _SignupState extends State<Signup> {
                           SizedBox(
                               width: 250,
                               child: TextFormField(
+                                textInputAction: TextInputAction.done,
+                                onEditingComplete: () {
+                                  if (signupErrorMessage
+                                      is LinearProgressIndicator) return;
+                                  if (_formFieldKey.currentState.validate()) {
+                                    setState(() {
+                                      signupError = true;
+                                      signupErrorMessage =
+                                          LinearProgressIndicator();
+                                    });
+                                    checkUsername(
+                                            _usernameController.value.text)
+                                        .then((value) {
+                                      if (value)
+                                        signup();
+                                      else
+                                        setState(() {
+                                          signupError = true;
+                                          signupErrorMessage = Text(
+                                            'This username is taken!',
+                                            style: TextStyle(color: Colors.red),
+                                          );
+                                        });
+                                    });
+                                  }
+                                },
                                 keyboardType: TextInputType.visiblePassword,
                                 obscureText: true,
                                 decoration: InputDecoration(

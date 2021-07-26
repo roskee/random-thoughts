@@ -63,7 +63,7 @@ class Database {
     }
     return returnbool;
   }
-  
+
   Future<String> deleteAccount(String username, String password) async {
     String error;
     try {
@@ -308,7 +308,7 @@ class Database {
       transaction.set(snapshot.reference, {
         'Author': author,
         'content': comment,
-        'date': Timestamp.now(),
+        'date': Timestamp.fromDate(DateTime.now().toLocal()),
         'likes': 0,
         'likers': []
       });

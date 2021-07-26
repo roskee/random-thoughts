@@ -122,6 +122,7 @@ class _ProfileState extends State<Profile> {
                             ),
                             onTap: () {
                               showModalBottomSheet<bool>(
+                                  isScrollControlled: true,
                                   context: context,
                                   builder: (context) => Card(
                                         child: Column(

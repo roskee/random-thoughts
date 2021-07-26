@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
             : Scaffold(
                 key: _scaffoldKey,
                 floatingActionButton: FloatingActionButton(
-                  mini: true,
+                  mini: false,
                   child: Icon(Icons.post_add),
                   onPressed: () {
                     showModalBottomSheet(
@@ -108,6 +108,25 @@ class _HomeState extends State<Home> {
                                       alignment: Alignment.bottomRight,
                                       children: [
                                         TextField(
+                                          textInputAction: TextInputAction.done,
+                                          onEditingComplete: () {
+                                            if (addThoughtController
+                                                .value.text.isEmpty) return;
+                                            _database
+                                                .postElement(
+                                                    FirebaseFirestore.instance
+                                                        .collection('Thoughts')
+                                                        .doc(),
+                                                    addThoughtController
+                                                        .value.text,
+                                                    _user.username,
+                                                    true)
+                                                .then((value) {
+                                              addThoughtController.clear();
+                                              Navigator.of(context).pop();
+                                              setState(() {});
+                                            });
+                                          },
                                           controller: addThoughtController,
                                           decoration: InputDecoration(
                                             hintText:

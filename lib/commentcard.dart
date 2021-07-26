@@ -262,6 +262,30 @@ class _CommentCardState extends State<CommentCard> {
                                             alignment: Alignment.bottomRight,
                                             children: [
                                               TextField(
+                                                textInputAction:
+                                                    TextInputAction.done,
+                                                onEditingComplete: () {
+                                                  String content =
+                                                      replyController
+                                                          .value.text;
+                                                  widget._database.postElement(
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                              'Thoughts')
+                                                          .doc(widget.parent.id)
+                                                          .collection(
+                                                              'Comments')
+                                                          .doc(widget.doc.id)
+                                                          .collection(
+                                                              'Comments')
+                                                          .doc(),
+                                                      content,
+                                                      widget._user.username,
+                                                      false);
+
+                                                  Navigator.of(context).pop();
+                                                  replyController.clear();
+                                                },
                                                 controller: replyController,
                                                 maxLines: 5,
                                                 maxLength: 150,
