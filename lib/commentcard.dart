@@ -105,7 +105,8 @@ class _CommentCardState extends State<CommentCard> {
                                   ]))).then((value) {
                         if (value != null) if (value) {
                           widget._database
-                              .deletePost(widget.doc.reference)
+                              .deletePost(
+                                  widget._user.username, widget.doc.reference)
                               .then((value) {
                             if (value)
                               ScaffoldMessenger.of(context).showSnackBar(

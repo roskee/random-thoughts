@@ -40,7 +40,20 @@ class Database {
     };
   }
 
-  Future<bool> deletePost(DocumentReference doc) async {
+  Future<bool> deletePost(String username, DocumentReference doc,
+      {ispost = false}) async {
+    // delete likecount from user
+    if (ispost) {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot user = await transaction
+            .get(FirebaseFirestore.instance.collection('Users').doc(username));
+        DocumentSnapshot post = await transaction.get(doc);
+        transaction.update(user.reference, {
+          'postcount': user.get('postcount') - 1,
+          'likecount': user.get('likecount') - post.get('likes')
+        });
+      });
+    }
     bool returnbool = false;
     try {
       await doc.delete();
@@ -208,7 +221,7 @@ class Database {
       if (element.id != user.id) if (element.get('likecount') >
           user.get('likecount')) rank++;
     });
-    print('users: $usersCount, rank: $rank');
+
     if (rank < usersCount / 100 * 1)
       return 0.01;
     else if (rank / usersCount <= usersCount / 100 * 10)

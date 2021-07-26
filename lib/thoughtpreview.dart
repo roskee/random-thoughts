@@ -205,7 +205,9 @@ class _ThoughtViewState extends State<ThoughtView> {
                                           ]))).then((value) {
                                 if (value != null) if (value) {
                                   widget.database
-                                      .deletePost(widget.doc.reference)
+                                      .deletePost(widget._user.username,
+                                          widget.doc.reference,
+                                          ispost: true)
                                       .then((value) {
                                     if (value)
                                       ScaffoldMessenger.of(context)
