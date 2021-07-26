@@ -63,7 +63,7 @@ class Database {
     }
     return returnbool;
   }
-
+  
   Future<String> deleteAccount(String username, String password) async {
     String error;
     try {

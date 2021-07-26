@@ -182,23 +182,22 @@ class _HomeState extends State<Home> {
                                                   Navigator.of(context).push(
                                                       MaterialPageRoute(
                                                           builder: (context) =>
-                                                              Profile(_user,
+                                                              Profile(
+                                                                  _user
+                                                                      .username,
                                                                   _database)));
                                                   break;
                                                 case 'signout':
-                                                  auth
-                                                      .signOut()
-                                                      .then((value) => {
-                                                            setState(() {
-                                                              notLoggedin =
-                                                                  true;
-                                                              _user.signout(
-                                                                  auth, () {
-                                                                notLoggedin =
-                                                                    true;
-                                                              });
-                                                            })
+                                                  auth.signOut().then((value) =>
+                                                      {
+                                                        setState(() {
+                                                          notLoggedin = true;
+                                                          UserInstance.signout(
+                                                              auth, () {
+                                                            notLoggedin = true;
                                                           });
+                                                        })
+                                                      });
                                                   break;
                                                 case 'about':
                                                   Navigator.of(context).push(

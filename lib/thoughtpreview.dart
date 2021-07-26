@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:random_thoughts/profile.dart';
 import 'package:random_thoughts/user.dart';
 
 import 'commentcard.dart';
@@ -167,7 +168,11 @@ class _ThoughtViewState extends State<ThoughtView> {
                         flex: 5,
                         child: InkWell(
                           highlightColor: Colors.transparent,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => Profile(
+                                    widget.doc['Author'], widget.database)));
+                          },
                           child: Text(widget.doc['Author']),
                         )),
                     VerticalDivider(),

@@ -7,7 +7,7 @@ import 'database.dart';
 
 class UpdateProfile extends StatefulWidget {
   final Database _database;
-  final UserInstance _user;
+  final String _user;
   final Function callback;
   UpdateProfile(this._database, this._user, this.callback);
   _UpdateProfileState createState() => _UpdateProfileState();
@@ -84,7 +84,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                   .updateProfile(
                                       firstNameController.value.text,
                                       lastNameController.value.text,
-                                      widget._user.username)
+                                      widget._user)
                                   .then((value) {
                                 if (value)
                                   setState(() {
@@ -102,7 +102,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                         style: TextStyle(color: Colors.red));
                                   });
                                 widget._database
-                                    .getCurrentUser(widget._user.username)
+                                    .getCurrentUser(widget._user)
                                     .then((value) {
                                   widget.callback(value);
                                 });

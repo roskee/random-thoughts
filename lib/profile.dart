@@ -6,7 +6,7 @@ import 'package:random_thoughts/updateprofile.dart';
 import 'package:random_thoughts/user.dart';
 
 class Profile extends StatefulWidget {
-  final UserInstance _user;
+  final String _user;
   final Database _database;
   Profile(this._user, this._database);
   _ProfileState createState() => _ProfileState();
@@ -16,14 +16,16 @@ class _ProfileState extends State<Profile> {
   Map<String, dynamic> user;
   TextEditingController checkPasswordForDeletionController =
       TextEditingController();
+  bool isLoggedin = false;
   bool ignorePointer = false;
   void initState() {
     super.initState();
-    widget._database
-        .getCurrentUser(widget._user.username)
-        .then((value) => setState(() {
-              user = value;
-            }));
+    if (widget._user ==
+        UserInstance.getInstance(FirebaseAuth.instance).username)
+      isLoggedin = true;
+    widget._database.getCurrentUser(widget._user).then((value) => setState(() {
+          user = value;
+        }));
   }
 
   String parsePopularity(double popularity) {
@@ -59,11 +61,11 @@ class _ProfileState extends State<Profile> {
                     child: Column(children: [
                       (user == null)
                           ? Text(
-                              widget._user.username,
+                              widget._user,
                               style: TextStyle(fontSize: 20),
                             )
                           : Text(
-                              '${widget._user.username} (${user['firstname']} ${user['lastname']})',
+                              '${widget._user} (${user['firstname']} ${user['lastname']})',
                               style: TextStyle(fontSize: 20),
                             ),
                       ListTile(
@@ -90,106 +92,110 @@ class _ProfileState extends State<Profile> {
                                   Text(parsePopularity(user['popularity'])),
                             ),
                     ])),
-                Card(
-                  shadowColor: Color(0x690FFFF0),
-                  elevation: 10,
-                  child: Column(
-                    children: [
-                      Text(
-                        'Account options',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      ListTile(
-                        title: Text('Update Profile'),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => UpdateProfile(
-                                  widget._database,
-                                  widget._user,
-                                  (value) => setState(() {
-                                        user = value;
-                                      }))));
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          'Delete Account',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        onTap: () {
-                          showModalBottomSheet<bool>(
-                              context: context,
-                              builder: (context) => Card(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Are you sure you want to delete your account with all your activity history?',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                        TextField(
-                                          obscureText: true,
-                                          maxLines: 1,
-                                          controller:
-                                              checkPasswordForDeletionController,
-                                          decoration: InputDecoration(
-                                              hintText: 'Input password'),
-                                        ),
-                                        ButtonBar(
+                Visibility(
+                    visible: isLoggedin,
+                    child: Card(
+                      shadowColor: Color(0x690FFFF0),
+                      elevation: 10,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Account options',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          ListTile(
+                            title: Text('Update Profile'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => UpdateProfile(
+                                      widget._database,
+                                      widget._user,
+                                      (value) => setState(() {
+                                            user = value;
+                                          }))));
+                            },
+                          ),
+                          ListTile(
+                            title: Text(
+                              'Delete Account',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onTap: () {
+                              showModalBottomSheet<bool>(
+                                  context: context,
+                                  builder: (context) => Card(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(true);
-                                                },
-                                                child: Text(
-                                                  'Yes',
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                )),
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(false);
-                                                },
-                                                child: Text('Cancel'))
+                                            Text(
+                                              'Are you sure you want to delete your account with all your activity history?',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                            TextField(
+                                              obscureText: true,
+                                              maxLines: 1,
+                                              controller:
+                                                  checkPasswordForDeletionController,
+                                              decoration: InputDecoration(
+                                                  hintText: 'Input password'),
+                                            ),
+                                            ButtonBar(
+                                              children: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                    },
+                                                    child: Text(
+                                                      'Yes',
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    )),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop(false);
+                                                    },
+                                                    child: Text('Cancel'))
+                                              ],
+                                            )
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  )).then((value) {
-                            if (value != null) if (value) {
-                              setState(() {
-                                ignorePointer = true;
-                              });
-                              widget._database
-                                  .deleteAccount(
-                                      widget._user.username,
-                                      checkPasswordForDeletionController
-                                          .value.text)
-                                  .then((value) {
-                                if (value == null) {
-                                  widget._user.signout(FirebaseAuth.instance,
-                                      () {
-                                    Navigator.of(context)
-                                        .popUntil((route) => route.isFirst);
-                                    Navigator.of(context).setState(() {});
-                                  });
-                                } else {
+                                        ),
+                                      )).then((value) {
+                                if (value != null) if (value) {
                                   setState(() {
-                                    ignorePointer = false;
+                                    ignorePointer = true;
                                   });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(value)));
+                                  widget._database
+                                      .deleteAccount(
+                                          widget._user,
+                                          checkPasswordForDeletionController
+                                              .value.text)
+                                      .then((value) {
+                                    if (value == null) {
+                                      UserInstance.signout(
+                                          FirebaseAuth.instance, () {
+                                        Navigator.of(context)
+                                            .popUntil((route) => route.isFirst);
+                                        Navigator.of(context).setState(() {});
+                                      });
+                                    } else {
+                                      setState(() {
+                                        ignorePointer = false;
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                              SnackBar(content: Text(value)));
+                                    }
+                                  });
                                 }
                               });
-                            }
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                )
+                            },
+                          )
+                        ],
+                      ),
+                    ))
               ],
             )),
       ));
