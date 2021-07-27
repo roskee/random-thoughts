@@ -249,6 +249,9 @@ class _SignupState extends State<Signup> {
               email: _emailController.value.text,
               password: _passwordFieldController.value.text)
           .then((value) async {
+        value.user.sendEmailVerification().onError((error, stackTrace) {
+          print('Error from roksee: $stackTrace');
+        });
         await value.user.updateDisplayName('${_usernameController.value.text}');
         await FirebaseFirestore.instance.runTransaction((transaction) async {
           transaction.set(

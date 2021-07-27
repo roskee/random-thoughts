@@ -17,6 +17,17 @@ class UserInstance {
   UserInstance._fromAuth(FirebaseAuth auth) {
     _initUser(auth);
   }
+  UserInstance.fromUser(User user) {
+    if (user == null) {
+      notLoggedin = true;
+      return;
+    }
+    notLoggedin = false;
+    username = user.displayName;
+    email = user.email;
+    photoUri = user.photoURL;
+    isVerified = user.emailVerified;
+  }
   UserInstance.fromJson(Map<String, dynamic> json) {
     notLoggedin = true;
     username = json['username'];
@@ -52,6 +63,7 @@ class UserInstance {
   static void signout(FirebaseAuth auth, Function callback) {
     if (_user == null) return;
     _user.notLoggedin = true;
+    //FirebaseAuth.instance.signOut();
     callback();
   }
 }
