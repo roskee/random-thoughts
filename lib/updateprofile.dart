@@ -25,8 +25,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Text updateProfileError = Text('');
   bool updatePasswordLoading = false;
   Text updatePasswordError = Text('');
-  Widget build(BuildContext context) => Material(
-          child: Card(
+  Widget build(BuildContext context) => Scaffold(
+          body: Card(
         elevation: 10,
         shadowColor: Color(0x690FFFF0),
         child: ListView(
@@ -47,6 +47,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                           width: 250,
                           child: TextFormField(
+                            textInputAction: TextInputAction.next,
                             validator: (value) => value.isEmpty
                                 ? 'Your first name is required'
                                 : null,
@@ -60,6 +61,41 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          textInputAction: TextInputAction.done,
+                          onEditingComplete: (){
+                            if (nameForm.currentState.validate()) {
+                              setState(() {
+                                updateProfileLoading = true;
+                              });
+                              widget._database
+                                  .updateProfile(
+                                      firstNameController.value.text,
+                                      lastNameController.value.text,
+                                      widget._user)
+                                  .then((value) {
+                                if (value)
+                                  setState(() {
+                                    updateProfileLoading = false;
+                                    updateProfileError = Text(
+                                      'Your profile is updated',
+                                      style: TextStyle(color: Colors.green),
+                                    );
+                                  });
+                                else
+                                  setState(() {
+                                    updateProfileLoading = false;
+                                    updateProfileError = Text(
+                                        'There was a problem while updating your profile',
+                                        style: TextStyle(color: Colors.red));
+                                  });
+                                widget._database
+                                    .getCurrentUser(widget._user)
+                                    .then((value) {
+                                  widget.callback(value);
+                                });
+                              });
+                            }
+                          },
                           inputFormatters: [
                             FilteringTextInputFormatter.deny(' ')
                           ],
@@ -120,6 +156,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
                           obscureText: true,
                           controller: oldPasswordController,
                           validator: (value) => value.isEmpty
@@ -132,6 +169,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
                           obscureText: true,
                           controller: newPasswordController,
                           validator: (value) => value.isEmpty
@@ -146,6 +184,36 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       SizedBox(
                         width: 250,
                         child: TextFormField(
+                          textInputAction: TextInputAction.done,
+                          onEditingComplete: (){
+                              if (passwordForm.currentState.validate()) {
+                              setState(() {
+                                updatePasswordLoading = true;
+                              });
+                              widget._database
+                                  .updatePassword(
+                                      newPasswordController.value.text,
+                                      oldPasswordController.value.text)
+                                  .then((value) {
+                                if (value == null) {
+                                  setState(() {
+                                    updatePasswordLoading = false;
+                                    updatePasswordError = Text(
+                                      'Your password is updated successfully!',
+                                      style: TextStyle(color: Colors.green),
+                                    );
+                                  });
+                                } else
+                                  setState(() {
+                                    updatePasswordLoading = false;
+                                    updatePasswordError = Text(
+                                      value,
+                                      style: TextStyle(color: Colors.red),
+                                    );
+                                  });
+                              });
+                            }
+                          },
                           obscureText: true,
                           controller: confirmPasswordController,
                           validator: (value) => (value.isEmpty)
