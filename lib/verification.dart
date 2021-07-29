@@ -55,19 +55,28 @@ class Verification extends StatelessWidget {
                         TextButton(
                             onPressed: () {
                               FirebaseAuth.instance.currentUser
-                                  .sendEmailVerification();
+                                  .sendEmailVerification().whenComplete(() {
+                                    showDialog(context: context, builder: (context)=> (AlertDialog(
+                                      content: Text('We have sent a verification code for your email'),
+                                      actions: [
+                                        TextButton(onPressed: (){
+                                          Navigator.pop(context);
+                                        }, child: Text('OK'))
+                                      ],
+                                    )));
+                                  });
                             },
                             child: Text('Resend link')),
-                        TextButton(
+                        ElevatedButton(
                             onPressed: () {
                               FirebaseAuth.instance.currentUser.reload();
                             },
                             child: Text('Refresh')),
-                        TextButton(
+                        ElevatedButton(
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
                             },
-                            child: Text('Sign out'))
+                            child: Text('Sign out',))
                       ]))
           ],
         ),
